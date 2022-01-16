@@ -6,7 +6,7 @@ import { useContractReader, useBalance, useEthersAdaptorFromProviderOrSigners } 
 import { useDexEthPrice } from 'eth-hooks/dapps';
 
 import { GenericContract } from 'eth-components/ant/generic-contract';
-import { Hints, Subgraph, ExampleUI } from '~~/components/pages';
+import { Crimes, Hints, Subgraph, ExampleUI } from '~~/components/pages';
 
 import { useEventListener } from 'eth-hooks';
 import { MainPageMenu, MainPageContracts, MainPageFooter, MainPageHeader } from './components/main';
@@ -98,6 +98,9 @@ export const Main: FC = () => {
             <MainPageContracts scaffoldAppProviders={scaffoldAppProviders} />
           </Route>
           {/* you can add routes here like the below examlples */}
+          <Route path="/crimes">
+            <Crimes />
+          </Route>
           <Route path="/hints">
             <Hints
               address={ethersContext?.account ?? ''}

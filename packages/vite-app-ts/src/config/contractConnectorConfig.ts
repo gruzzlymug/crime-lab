@@ -23,10 +23,15 @@ import {
 export const contractConnectorConfig = () => {
   try {
     const result = {
-      // 🙋🏽‍♂️ Add your hadrdhat contracts here
+      // 🙋🏽‍♂️ Add your hardhat contracts here
       YourContract: createConnectorForHardhatContract(
         'YourContract',
         hardhatContracts.YourContract__factory,
+        hardhatContractsJson
+      ),
+      CrimeLab: createConnectorForHardhatContract(
+        'CrimeLab',
+        hardhatContracts.CrimeLab__factory,
         hardhatContractsJson
       ),
 
