@@ -6,7 +6,7 @@ import { useContractReader, useBalance, useEthersAdaptorFromProviderOrSigners } 
 import { useDexEthPrice } from 'eth-hooks/dapps';
 
 import { GenericContract } from 'eth-components/ant/generic-contract';
-import { Crimes, Hints, Subgraph, ExampleUI } from '~~/components/pages';
+import { Crimes, CrimeLab, Hints, Subgraph, ExampleUI } from '~~/components/pages';
 
 import { useEventListener } from 'eth-hooks';
 import { MainPageMenu, MainPageContracts, MainPageFooter, MainPageHeader } from './components/main';
@@ -100,6 +100,9 @@ export const Main: FC = () => {
           {/* you can add routes here like the below examlples */}
           <Route path="/crimes">
             <Crimes />
+          </Route>
+          <Route path="/crimelab">
+            <CrimeLab />
           </Route>
           <Route path="/hints">
             <Hints

@@ -1,6 +1,5 @@
-# 🏗 Minimal Stab TS
+# 🔪 Minimal Stab TS
 Templated from Scaffold-Eth Typescript
-
 ## Typescript
 
 This was the typescript repo of scaffold.eth. Check out the directories:
@@ -40,7 +39,7 @@ Everything you need to build on Ethereum! 🚀
 
 🧪 Quickly experiment with Solidity using a frontend that adapts to your smart contract.
 
-# 🏄‍♂️ Building on scaffold-eth-typescript
+## Building on scaffold-eth-typescript
 
 🔏 Edit your smart contracts in `packages/hardhat-ts/contracts`
 

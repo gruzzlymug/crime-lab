@@ -8,7 +8,7 @@ export interface ICrimesProps {
 
 export const Crimes: FC<ICrimesProps> = (props) => {
   const ethersContext = useEthersContext();
-  const crimeLabContract = useAppContracts<"CrimeLab">('CrimeLab', ethersContext.chainId);
+  const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
 
   return (
     <div>
@@ -16,9 +16,7 @@ export const Crimes: FC<ICrimesProps> = (props) => {
         contractName="CrimeLab"
         contract={crimeLabContract}
         mainnetAdaptor={undefined}
-        // mainnetProvider={props.appProviders.mainnetProvider}
         blockExplorer={"undefined"}
-      // contractConfig={props.contractConfig}
       />
     </div>
   );

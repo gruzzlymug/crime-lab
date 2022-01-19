@@ -63,12 +63,12 @@ export const ExampleUI: FC<IExampleUIProps> = (props) => {
                   console.log(' 🍾 Transaction ' + update.hash + ' finished!');
                   console.log(
                     ' ⛽️ ' +
-                      update.gasUsed +
-                      '/' +
-                      (update.gasLimit || update.gas) +
-                      ' @ ' +
-                      parseFloat(update.gasPrice) / 1000000000 +
-                      ' gwei'
+                    update.gasUsed +
+                    '/' +
+                    (update.gasLimit || update.gas) +
+                    ' @ ' +
+                    parseFloat(update.gasPrice) / 1000000000 +
+                    ' gwei'
                   );
                 }
               });
@@ -168,10 +168,13 @@ export const ExampleUI: FC<IExampleUIProps> = (props) => {
           bordered
           dataSource={setPurposeEvents}
           renderItem={(item: any) => {
+            // debugger
             return (
-              <List.Item key={item.blockNumber + '_' + item.sender + '_' + item.purpose}>
-                <Address address={item[0]} ensProvider={mainnetProvider} fontSize={16} /> =&gt
-                {item[1]}
+              <List.Item key={item.blockNumber + '_' + item.args[0] + '_' + item.args[1]}>
+                <Address address={item.args[0]} ensProvider={mainnetProvider} fontSize={16} />
+                &nbsp;
+                =&gt;
+                &nbsp;{item.event}: {item.args[1]}
               </List.Item>
             );
           }}
@@ -209,16 +212,16 @@ export const ExampleUI: FC<IExampleUIProps> = (props) => {
           <div style={{ marginTop: 8 }}>
             Date Pickers?
             <div style={{ marginTop: 2 }}>
-              <DatePicker onChange={() => {}} />
+              <DatePicker onChange={() => { }} />
             </div>
           </div>
 
           <div style={{ marginTop: 32 }}>
-            <Slider range defaultValue={[20, 50]} onChange={() => {}} />
+            <Slider range defaultValue={[20, 50]} onChange={() => { }} />
           </div>
 
           <div style={{ marginTop: 32 }}>
-            <Switch defaultChecked onChange={() => {}} />
+            <Switch defaultChecked onChange={() => { }} />
           </div>
 
           <div style={{ marginTop: 32 }}>
