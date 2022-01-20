@@ -34,6 +34,11 @@ export const contractConnectorConfig = () => {
         hardhatContracts.CrimeLab__factory,
         hardhatContractsJson
       ),
+      MinimalGame: createConnectorForHardhatContract(
+        'MinimalGame',
+        hardhatContracts.MinimalGame__factory,
+        hardhatContractsJson
+      ),
 
       // 🙋🏽‍♂️ Add your external contracts here, make sure to define the address in `externalContractsConfig.ts`
       DAI: createConnectorForExternalContract('DAI', externalContracts.DAI__factory, externalContractsAddressMap),

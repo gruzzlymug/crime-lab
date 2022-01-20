@@ -6,7 +6,7 @@ import { useContractReader, useBalance, useEthersAdaptorFromProviderOrSigners } 
 import { useDexEthPrice } from 'eth-hooks/dapps';
 
 import { GenericContract } from 'eth-components/ant/generic-contract';
-import { Crimes, CrimeLab, Hints, Subgraph, ExampleUI } from '~~/components/pages';
+import { Crimes, CrimeLab, Hints, Subgraph, ExampleUI, MinimalGame } from '~~/components/pages';
 
 import { useEventListener } from 'eth-hooks';
 import { MainPageMenu, MainPageContracts, MainPageFooter, MainPageHeader } from './components/main';
@@ -103,6 +103,9 @@ export const Main: FC = () => {
           </Route>
           <Route path="/crimelab">
             <CrimeLab />
+          </Route>
+          <Route path="/minimalgame">
+            <MinimalGame />
           </Route>
           <Route path="/hints">
             <Hints

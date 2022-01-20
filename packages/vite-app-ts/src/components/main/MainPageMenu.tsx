@@ -41,6 +41,15 @@ export const MainPageMenu: FC<IMainPageMenuProps> = (props) => (
         CrimeLab
       </Link>
     </Menu.Item>
+    <Menu.Item key="/minimalgame">
+      <Link
+        onClick={() => {
+          props.setRoute('/minimalgame');
+        }}
+        to="/minimalgame">
+        MinimalGame
+      </Link>
+    </Menu.Item>
     <Menu.Item key="/hints">
       <Link
         onClick={() => {
