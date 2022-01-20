@@ -5,7 +5,8 @@ import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
-import { Players } from '~~/components/pages/crimelab/Players'
+import { Players } from './Players'
+import { JoinGameButton } from "./JoinGameButton";
 
 import { Button, Input, List } from 'antd';
 import { Address } from 'eth-components/ant';
@@ -72,6 +73,7 @@ export const CrimeLab: FC<ICrimeLabProps> = (props) => {
       >
         Create new game
       </Button>
+      <JoinGameButton tx={tx} />
 
       <div style={{ width: 600, margin: 'auto', marginTop: 32, paddingBottom: 32 }}>
         <h2>Events:</h2>

@@ -2,6 +2,10 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 import './BaseCase.sol';
+import 'hardhat/console.sol';
+
+// above import enables us to log with hardhat
+// example: console.log('games length: ', games.length);
 
 contract CrimeLab is BaseCase {
   event GameCreated(uint256 gameId, string name, address creator);
@@ -99,6 +103,18 @@ contract CrimeLab is BaseCase {
     game_to_players[_gameId].push(msg.sender);
 
     emit PlayerJoined(_gameId, msg.sender);
+  }
+
+  function joinAnyGame() external {
+    uint256 i;
+    for (i = 0; i < games.length; i++) {
+      uint256 numPlayers = getNumPlayers(i);
+      if (numPlayers < 2) {
+        game_to_players[i].push(msg.sender);
+        emit PlayerJoined(i, msg.sender);
+        break;
+      }
+    }
   }
 
   function startGame(uint256 _gameId) external {
