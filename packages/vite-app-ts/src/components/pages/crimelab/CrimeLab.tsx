@@ -57,18 +57,6 @@ export const CrimeLab: FC<ICrimeLabProps> = (props) => {
           });
           console.log("awaiting metamask/web3 confirm result...", result);
           const newGame = await result;
-
-          // TODO - need to figure out how to get the gameId of the newly created game.
-          console.log("new game: ", newGame);
-          // debugger;
-          const newGameId = newGame?.value.toNumber();
-          console.log("newGameId", newGameId);
-          // debugger;
-
-          // TEMP commenting out the code to redirect the user to the game,
-          // until we have the gameId for the newly created game.
-          // setGameId(newGameId);
-          // setGoToGame(true);
         }}
       >
         Create new game
