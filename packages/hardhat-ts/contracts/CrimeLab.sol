@@ -4,9 +4,6 @@ pragma solidity >=0.4.22 <0.9.0;
 import './BaseCase.sol';
 import 'hardhat/console.sol';
 
-// above import enables us to log with hardhat
-// example: console.log('games length: ', games.length);
-
 contract CrimeLab is BaseCase {
   event GameCreated(uint256 gameId, string name, address creator);
   event PlayerJoined(uint256 gameId, address player);
@@ -223,6 +220,19 @@ contract CrimeLab is BaseCase {
       // loses
     }
     return solved;
+  }
+
+  function leaveGame() external {
+    if (player_to_game[msg.sender] != 0) {
+      // TODO leave game in playable state when player is gone
+      // TODO discard all player cards
+      // reset state
+      player_to_game[msg.sender] = 0;
+    } else {
+      // TODO add address in readable format
+      string memory message = string(abi.encodePacked(msg.sender, ' is not playing'));
+      console.log(message);
+    }
   }
 
   function _hashCrime(Crime memory _crime) internal pure returns (bytes32 hash) {
