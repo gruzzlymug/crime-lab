@@ -1,16 +1,14 @@
-import React from 'react';
 import { FC } from 'react';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
-import { useContractReader } from 'eth-hooks';
-import { Button, Input, List } from 'antd';
-import { Address } from 'eth-components/ant';
+import { Button } from 'antd';
 import { TTransactorFunc } from 'eth-components/functions';
 
 export interface IJoinGameButtonProps {
   tx: TTransactorFunc | undefined
 }
 
+// TODO automate. atm, after changing accounts in MM, manual reload is required to get address to update
 export const JoinGameButton: FC<IJoinGameButtonProps> = (props) => {
   const ethersContext = useEthersContext();
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);

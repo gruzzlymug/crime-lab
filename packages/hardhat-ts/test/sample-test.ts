@@ -1,14 +1,15 @@
-const { expect } = require("chai");
+import { ethers } from 'hardhat';
+import { expect } from 'chai';
 
-describe("Greeter", function() {
-  it("Should return the new greeting once it's changed", async function() {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    
-    await greeter.deployed();
-    expect(await greeter.greet()).to.equal("Hello, world!");
+describe("CrimeLab", function () {
+  it("Should do something", async function () {
+    const CrimeLab = await ethers.getContractFactory("CrimeLab");
+    const crimeLab = await CrimeLab.deploy();
 
-    await greeter.setGreeting("Hola, mundo!");
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    await crimeLab.deployed();
+    expect(true).to.equal(true);
+
+    await crimeLab.createGame("MURDER!");
+    expect(await crimeLab.getName(0)).to.equal("MURDER!");
   });
 });

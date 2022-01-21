@@ -34,6 +34,14 @@ contract CrimeLab is BaseCase {
 
   Game[] public games;
 
+  constructor() {
+    // HACK create INVALID game as fake null
+    Crime memory crime = Crime(INVALID, INVALID, INVALID);
+    uint256 discarded = 0;
+    uint256 turn = 0;
+    games.push(Game('** INVALID **', crime, discarded, turn));
+  }
+
   function getName(uint256 _gameId) external view returns (string memory) {
     return games[_gameId].name;
   }
@@ -45,7 +53,12 @@ contract CrimeLab is BaseCase {
   function getNumPlayers(uint256 _gameId) public view returns (uint256) {
     require(game_to_players[_gameId].length > 0, 'Game does not exist');
 
-    return uint256(game_to_players[_gameId].length);
+    uint256 numPlayers = uint256(game_to_players[_gameId].length);
+    // Array may be 0 padded if players have left the game
+    while (numPlayers > 0 && game_to_players[_gameId][numPlayers - 1] == address(0)) {
+      --numPlayers;
+    }
+    return numPlayers;
   }
 
   function getNumCards(address player) public view returns (uint256) {
@@ -93,22 +106,33 @@ contract CrimeLab is BaseCase {
     emit GameCreated(id, _name, msg.sender);
   }
 
-  function joinGame(uint256 _gameId) external {
-    // TODO ensure player can't join game more than once
+  function joinGame(uint256 _gameId) public {
+    require(player_to_game[msg.sender] == 0, 'Player is already in a game');
     require(game_to_players[_gameId].length < 4, 'Max 4 players per game');
 
-    game_to_players[_gameId].push(msg.sender);
+    player_to_game[msg.sender] = _gameId;
+    // attempt to fill any empty slots first
+    uint256 numSlots = game_to_players[_gameId].length;
+    uint256 i = 0;
+    for (; i < numSlots; ++i) {
+      if (game_to_players[_gameId][i] == address(0)) {
+        game_to_players[_gameId][i] = msg.sender;
+        break;
+      }
+    }
+    // no empty slots...
+    if (i == numSlots) {
+      game_to_players[_gameId].push(msg.sender);
+    }
 
     emit PlayerJoined(_gameId, msg.sender);
   }
 
   function joinAnyGame() external {
-    uint256 i;
-    for (i = 0; i < games.length; i++) {
+    for (uint256 i = 1; i < games.length; i++) {
       uint256 numPlayers = getNumPlayers(i);
       if (numPlayers < 2) {
-        game_to_players[i].push(msg.sender);
-        emit PlayerJoined(i, msg.sender);
+        joinGame(i);
         break;
       }
     }
@@ -222,12 +246,23 @@ contract CrimeLab is BaseCase {
     return solved;
   }
 
+  // TODO leave game in playable state when possible
+  // TODO discard all player cards
+  // TODO deal with game-ending exits
+  // TODO consider stake sacrifice as penalty
   function leaveGame() external {
-    if (player_to_game[msg.sender] != 0) {
-      // TODO leave game in playable state when player is gone
-      // TODO discard all player cards
-      // reset state
+    uint256 gameId = player_to_game[msg.sender];
+    if (gameId != 0) {
       player_to_game[msg.sender] = 0;
+      // remove from list of game's players
+      uint256 numPlayers = getNumPlayers(gameId);
+      for (uint256 i = 0; i < numPlayers; i++) {
+        if (game_to_players[gameId][i] == msg.sender) {
+          delete game_to_players[gameId][i];
+          game_to_players[gameId][i] = game_to_players[gameId][numPlayers - 1];
+          break;
+        }
+      }
     } else {
       // TODO add address in readable format
       string memory message = string(abi.encodePacked(msg.sender, ' is not playing'));

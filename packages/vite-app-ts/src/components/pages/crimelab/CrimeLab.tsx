@@ -1,5 +1,5 @@
-import React from "react";
 import { FC, useContext, useState } from 'react';
+import { Redirect } from "react-router-dom";
 import { useContractReader, useEventListener, useGasPrice } from 'eth-hooks';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
@@ -25,14 +25,14 @@ export const CrimeLab: FC<ICrimeLabProps> = (props) => {
   const tx = transactor(ethComponentsSettings, ethersContext?.signer, gasPrice);
 
   const [gameId] = useContractReader(crimeLabContract, crimeLabContract?.getGameId, []);
-  const [gameName] = useContractReader(crimeLabContract, crimeLabContract?.getName, [gameId || 0], crimeLabContract?.filters.GameCreated());
 
   const [gameCreatedEvents] = useEventListener<GameCreatedEvent>(crimeLabContract, crimeLabContract?.filters.GameCreated(), 1);
 
   return (
     <div style={{ margin: 8 }}>
+      {(gameId && (gameId.toNumber() > 0)) && <Redirect to={`/crime/${gameId}`} />}
       <Input
-        placeholder={gameName}
+        placeholder={"Game name"}
         onChange={e => {
           setNewGameName(e.target.value);
         }}
