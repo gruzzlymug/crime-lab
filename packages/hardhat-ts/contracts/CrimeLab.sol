@@ -51,7 +51,7 @@ contract CrimeLab is BaseCase {
   }
 
   function getNumPlayers(uint256 _gameId) public view returns (uint256) {
-    require(game_to_players[_gameId].length > 0, 'Game does not exist');
+    // require(game_to_players[_gameId].length > 0, 'Game does not exist');
 
     uint256 numPlayers = uint256(game_to_players[_gameId].length);
     // Array may be 0 padded if players have left the game
