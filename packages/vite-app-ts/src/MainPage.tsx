@@ -108,9 +108,7 @@ export const Main: FC = () => {
             exact
             path="/crime/:gameId"
             children={
-              <Crime
-                gameId={0x100}
-              />
+              <Crime />
             }
           ></Route>
           <Route path="/minimalgame">
