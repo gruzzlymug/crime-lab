@@ -6,7 +6,7 @@ import { useAppContracts } from '~~/config/contractContext';
 import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
 import { Players } from './Players'
-import { JoinGameButton } from "./JoinGameButton";
+import { JoinGameButton } from './JoinGameButton';
 
 import { Button, Input, List } from 'antd';
 import { Address } from 'eth-components/ant';
