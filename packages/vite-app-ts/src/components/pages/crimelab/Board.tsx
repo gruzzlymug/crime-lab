@@ -3,46 +3,74 @@ import { FC } from 'react';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { useContractReader } from 'eth-hooks';
-import { Button, Input, List, Row, Col } from 'antd';
-import { Address } from 'eth-components/ant';
+import { Row, Col } from 'antd';
 import "antd/dist/antd.css";
 
 export interface IBoardProps {
 }
 
-// example: "00" -> "room name"
-const rooms: Map<string, string> = new Map<string, string>([
-  ["04", "ROOM 1"],
-  ["48", "ROOM 2"],
-  ["84", "ROOM 3"],
-  ["40", "ROOM 4"],
-  ["44", "ROOM 5"],
-]);
+// BILLIARD
+// STUDY
+// HALL
+// LOUNGE
+// DINING
+// BALLROOM
+// CONSERVATORY
+// LIBRARY
+// KITCHEN
 
-function getCell(row: number, col: number): any {
-  const cellId = row.toString() + col.toString();
-  const roomName: any = rooms.get(cellId)
-  let cellContents: any = '';
-  if (roomName) {
-    cellContents = roomName;
+function generateMap(rows: number, cols: number): Map<any, string[]> {
+  const startColor = "#d00";
+  const roomColor = "#d0d";
+  const wallColor = "#333";
+
+  let gameMap: Map<any, string[]> = new Map<any, string[]>([
+    [1, [startColor, "🗿"]],
+    [7, [startColor, "🕵️‍♂️"]],
+    [73, [startColor, "🕵️‍♀️"]],
+    [79, [startColor, "👮"]],
+    [13, [roomColor, "LOUNGE"]],
+    [37, [roomColor, "LIBRARY"]],
+    [40, [roomColor, "KITCHEN"]],
+    [43, [roomColor, "STUDY"]],
+    [67, [roomColor, "BALLROOM"]],
+  ]);;
+
+  for (let r = 0; r < rows; ++r) {
+    const cellId = r * rows;
+    gameMap.set(r * rows, [wallColor, "X"]);
+    gameMap.set(r * rows + cols - 1, [wallColor, "X"]);
   }
-  else {
-    cellContents = cellId;
+  for (let c = 2; c < cols - 2; ++c) {
+    gameMap.set(c, [wallColor, "X"]);
+    gameMap.set(c + (cols * (rows - 1)), [wallColor, "X"]);
   }
-  // TODO add column styling
-  return <Col span={2}>{cellContents}</Col>
+
+  return gameMap;
 }
 
-function generateBoard(rows: number, columns: number): any {
+function generateBoard(rows: number, cols: number): any {
+  const gameMap = generateMap(rows, cols);
+
   let board: Array<any> = [];
   for (let r: number = 0; r < rows; r++) {
     let currentColumns: Array<any> = [];
-    for (let c: number = 0; c < columns; c++) {
-      const cell = getCell(r, c);
+    for (let c: number = 0; c < cols; c++) {
+      let cellColor = "#ddd";
+      let cellContent = "--";
+
+      const cellId = r * rows + c;
+      const props = gameMap.get(cellId);
+      if (props != undefined) {
+        cellColor = props[0];
+        cellContent = props[1];
+      }
+      const style = { background: cellColor };
+      const cell = <Col key={cellId} span={2}><div style={style}>{cellContent}</div></Col>;
       currentColumns.push(cell);
     }
     // TODO add row styling
-    board.push(<Row gutter={[4, 4]}> {currentColumns} </Row>)
+    board.push(<Row key={r} gutter={[4, 4]}>{currentColumns}</Row>)
   }
 
   return board;
@@ -51,8 +79,7 @@ function generateBoard(rows: number, columns: number): any {
 export const Board: FC<IBoardProps> = (props) => {
   const board = generateBoard(9, 9)
   return (
-    <div>
-      <h3>Board</h3>
+    <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
       {board}
     </div>
   );
