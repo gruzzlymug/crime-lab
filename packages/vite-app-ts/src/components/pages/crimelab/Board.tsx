@@ -79,7 +79,7 @@ function generateBoard(rows: number, cols: number): any {
 export const Board: FC<IBoardProps> = (props) => {
   const board = generateBoard(9, 9)
   return (
-    <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 64 }}>
+    <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 16 }}>
       {board}
     </div>
   );

@@ -23,15 +23,13 @@ export const Crime: FC<ICrimeProps> = () => {
   const ethersContext = useEthersContext();
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
 
-  const [contractGameId] = useContractReader(crimeLabContract, crimeLabContract?.getGameId, []);
+  const [gameId] = useContractReader(crimeLabContract, crimeLabContract?.getGameId, []);
+  const [gameName] = useContractReader(crimeLabContract, crimeLabContract?.getName, [gameId || 0]);
+  // this is updated whenever the 'PlayerJoined' event is emitted
+  const [numberOfPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
 
-  const [gameId, setGameId] = useState(contractGameId);
+  // this is updated via a sideEffect below.
   const [players, setPlayers] = useState(new Set<string>());
-
-  // const { gameId } = useParams<GameParams>();
-
-  const [gameName] = useContractReader(crimeLabContract, crimeLabContract?.getName, [gameId || 0], crimeLabContract?.filters.GameCreated());
-  const [numberOfPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0]);
 
   useEffect(() => {
     const getPlayers = async () => {
@@ -47,15 +45,18 @@ export const Crime: FC<ICrimeProps> = () => {
       setPlayers(players);
     };
     getPlayers();
-  }, [gameId]);
+  }, [numberOfPlayers]);
 
   return (
     <div>
       <div>
-        CRIME {gameName} {numberOfPlayers?.toNumber()}
+        CRIME: {gameName}
       </div>
       <div>
-        PLAYERS {players.size} {Array.from(players, e => { return (<div key={e}>{e}</div>) })}
+        GAME ID: {gameId?.toNumber()}
+      </div>
+      <div>
+        {numberOfPlayers?.toNumber()} PLAYERS {Array.from(players, e => { return (<div key={e}>{e}</div>) })}
       </div>
       <Board />
     </div>
