@@ -9,6 +9,7 @@ contract CrimeLab is BaseCase {
   event PlayerJoined(uint256 gameId, address player);
   event SuggestionMade(uint256 gameId, address player);
   event SuggestionData(uint256 gameId, uint256 suspect, uint256 weapon, uint256 room);
+  event TurnTaken(uint256 gameId);
 
   struct Player {
     address id;
@@ -63,6 +64,10 @@ contract CrimeLab is BaseCase {
 
   function getNumCards(address player) public view returns (uint256) {
     return player_to_cards[player].length;
+  }
+
+  function getTurn(uint256 _gameId) external view returns (uint256) {
+    return games[_gameId].turn;
   }
 
   function getJoinableGames() public view {
@@ -199,6 +204,8 @@ contract CrimeLab is BaseCase {
     }
 
     games[_gameId].turn += 1;
+
+    emit TurnTaken(_gameId);
   }
 
   function takeTurn(uint256 _gameId) public {
@@ -208,6 +215,8 @@ contract CrimeLab is BaseCase {
     makeSuggestion(_gameId, suggestion);
     // who is next
     games[_gameId].turn += 1;
+
+    emit TurnTaken(_gameId);
   }
 
   function makeSuggestion(uint256 _gameId, Crime memory _crime) public returns (bool) {

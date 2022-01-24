@@ -16,15 +16,15 @@ export const Crime: FC<ICrimeProps> = () => {
   const [gameId] = useContractReader(crimeLabContract, crimeLabContract?.getGameId, []);
   const [gameName] = useContractReader(crimeLabContract, crimeLabContract?.getName, [gameId || 0]);
   // this is updated whenever the 'PlayerJoined' event is emitted
-  const [numberOfPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
+  const [numPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
+  const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
 
   // this is updated via a sideEffect below.
   const [players, setPlayers] = useState<{ id: string; ready: boolean; }[]>([]);
-  const [turn, setTurn] = useState(0);
 
   useEffect(() => {
     const getPlayers = async () => {
-      const nop = numberOfPlayers && numberOfPlayers.toNumber() || 0;
+      const nop = numPlayers && numPlayers.toNumber() || 0;
       const gid = gameId && gameId.toNumber() || 0;
       let players = [];
       for (let i: number = 0; i < nop; i++) {
@@ -36,18 +36,7 @@ export const Crime: FC<ICrimeProps> = () => {
       setPlayers(players);
     };
     getPlayers();
-  }, [numberOfPlayers]);
-
-  useEffect(() => {
-    const getTurn = async () => {
-      const gid = gameId && gameId.toNumber() || 0;
-      const game = await crimeLabContract?.games(gid);
-      if (game) {
-        setTurn(game.turn.toNumber());
-      }
-    }
-    getTurn();
-  }, [numberOfPlayers]);
+  }, [numPlayers]);
 
   return (
     <div>
@@ -58,10 +47,10 @@ export const Crime: FC<ICrimeProps> = () => {
         GAME ID: {gameId?.toNumber()}
       </div>
       <div>
-        TURN: {turn}
+        TURN: {gameTurn?.toNumber()}
       </div>
       <div>
-        {numberOfPlayers?.toNumber()} PLAYERS
+        {numPlayers?.toNumber()} PLAYERS
         {players.map(player => {
           return (
             <div key={player.id}><Checkbox checked={player.ready} disabled /> {player.id}</div>
