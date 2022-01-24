@@ -34,14 +34,19 @@ export const Crime: FC<ICrimeProps> = () => {
   const [numberOfPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0]);
 
   useEffect(() => {
-    const nop = numberOfPlayers && numberOfPlayers.toNumber() || 0;
-    const gid = gameId && gameId.toNumber() || 0;
-    for (let i: number = 0; i < nop; i++) {
-      crimeLabContract?.game_to_players(gid, i).then((player) => {
-        players.add(player)
-        setPlayers(players);
-      });
-    }
+    const getPlayers = async () => {
+      const nop = numberOfPlayers && numberOfPlayers.toNumber() || 0;
+      const gid = gameId && gameId.toNumber() || 0;
+      let players = new Set<string>();
+      for (let i: number = 0; i < nop; i++) {
+        const player = await crimeLabContract?.game_to_players(gid, i);
+        if (player) {
+          players.add(player);
+        }
+      }
+      setPlayers(players);
+    };
+    getPlayers();
   }, [gameId]);
 
   return (
