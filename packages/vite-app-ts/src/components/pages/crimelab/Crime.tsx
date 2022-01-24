@@ -1,23 +1,13 @@
 import { FC } from 'react';
-import { useCallback, useEffect, useState } from 'react';
-// NOTE maybe need for game id
-// import { useParams } from "react-router-dom";
+import { useEffect, useState } from 'react';
 import { useContractReader, useEventListener } from 'eth-hooks';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
-
-import { Players } from './Players'
+import { Checkbox } from 'antd';
 import { Board } from './Board';
 
-import { BigNumber } from 'ethers';
-
-// TODO figure out "best" way to get game id
 export interface ICrimeProps {
 }
-
-type GameParams = {
-  gameId: string;
-};
 
 export const Crime: FC<ICrimeProps> = () => {
   const ethersContext = useEthersContext();
@@ -29,17 +19,17 @@ export const Crime: FC<ICrimeProps> = () => {
   const [numberOfPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
 
   // this is updated via a sideEffect below.
-  const [players, setPlayers] = useState(new Set<string>());
+  const [players, setPlayers] = useState<{ id: string; ready: boolean; }[]>([]);
 
   useEffect(() => {
     const getPlayers = async () => {
       const nop = numberOfPlayers && numberOfPlayers.toNumber() || 0;
       const gid = gameId && gameId.toNumber() || 0;
-      let players = new Set<string>();
+      let players = [];
       for (let i: number = 0; i < nop; i++) {
         const player = await crimeLabContract?.game_to_players(gid, i);
         if (player) {
-          players.add(player);
+          players.push(player);
         }
       }
       setPlayers(players);
@@ -56,7 +46,12 @@ export const Crime: FC<ICrimeProps> = () => {
         GAME ID: {gameId?.toNumber()}
       </div>
       <div>
-        {numberOfPlayers?.toNumber()} PLAYERS {Array.from(players, e => { return (<div key={e}>{e}</div>) })}
+        {numberOfPlayers?.toNumber()} PLAYERS
+        {players.map(player => {
+          return (
+            <div key={player.id}><Checkbox checked={player.ready} disabled /> {player.id}</div>
+          )
+        })}
       </div>
       <Board />
     </div>

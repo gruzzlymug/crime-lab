@@ -12,7 +12,9 @@ contract CrimeLab is BaseCase {
 
   struct Player {
     address id;
-    uint256[] cards;
+    bool ready;
+    // TODO use or remove
+    // uint256[] cards;
   }
 
   struct Crime {
@@ -28,7 +30,7 @@ contract CrimeLab is BaseCase {
     uint256 turn;
   }
 
-  mapping(uint256 => address[]) public game_to_players;
+  mapping(uint256 => Player[]) public game_to_players;
   mapping(address => uint256) public player_to_game;
   mapping(address => uint256[]) public player_to_cards;
 
@@ -51,11 +53,9 @@ contract CrimeLab is BaseCase {
   }
 
   function getNumPlayers(uint256 _gameId) public view returns (uint256) {
-    // require(game_to_players[_gameId].length > 0, 'Game does not exist');
-
     uint256 numPlayers = uint256(game_to_players[_gameId].length);
     // Array may be 0 padded if players have left the game
-    while (numPlayers > 0 && game_to_players[_gameId][numPlayers - 1] == address(0)) {
+    while (numPlayers > 0 && game_to_players[_gameId][numPlayers - 1].id == address(0)) {
       --numPlayers;
     }
     return numPlayers;
@@ -100,30 +100,37 @@ contract CrimeLab is BaseCase {
     games.push(Game(_name, crime, discarded, turn));
     uint256 id = games.length - 1;
 
-    player_to_game[msg.sender] = id;
-    game_to_players[id].push(msg.sender);
+    addPlayerToGame(id, msg.sender);
 
     emit GameCreated(id, _name, msg.sender);
   }
 
-  function joinGame(uint256 _gameId) public {
-    require(player_to_game[msg.sender] == 0, 'Player is already in a game');
-    require(game_to_players[_gameId].length < 4, 'Max 4 players per game');
+  function addPlayerToGame(uint256 _gameId, address _player) internal {
+    require(getNumPlayers(_gameId) < 4, 'Max 4 players per game');
 
-    player_to_game[msg.sender] = _gameId;
+    bool playerReady = true;
+
+    player_to_game[_player] = _gameId;
     // attempt to fill any empty slots first
     uint256 numSlots = game_to_players[_gameId].length;
     uint256 i = 0;
     for (; i < numSlots; ++i) {
-      if (game_to_players[_gameId][i] == address(0)) {
-        game_to_players[_gameId][i] = msg.sender;
+      if (game_to_players[_gameId][i].id == address(0)) {
+        game_to_players[_gameId][i].id = _player;
+        game_to_players[_gameId][i].ready = playerReady;
         break;
       }
     }
     // no empty slots...
     if (i == numSlots) {
-      game_to_players[_gameId].push(msg.sender);
+      game_to_players[_gameId].push(Player(_player, playerReady));
     }
+  }
+
+  function joinGame(uint256 _gameId) public {
+    require(player_to_game[msg.sender] == 0, 'Player is already in a game');
+
+    addPlayerToGame(_gameId, msg.sender);
 
     emit PlayerJoined(_gameId, msg.sender);
   }
@@ -176,18 +183,18 @@ contract CrimeLab is BaseCase {
     // deal cards to players
     uint256 discarded = games[_gameId].discarded;
     uint256 numPlayers = game_to_players[_gameId].length;
-    uint256 playerId = 0;
+    uint256 playerIndex = 0;
     for (uint256 i = 0; i < deck.length; ++i) {
       uint256 card = deck[lookup[i]];
       uint256 flag = 1 << card;
       if (discarded & flag == 0) {
         // assign card id to player
-        address player = game_to_players[_gameId][playerId];
+        address player = game_to_players[_gameId][playerIndex].id;
         player_to_cards[player].push(card);
 
         emit CardDealt(card, player);
 
-        playerId = (playerId + 1) % numPlayers;
+        playerIndex = (playerIndex + 1) % numPlayers;
       }
     }
 
@@ -210,14 +217,14 @@ contract CrimeLab is BaseCase {
 
     // iterate through opponents and try to disprove suggestion
     uint256 numPlayers = game_to_players[_gameId].length;
-    uint256 activePlayerId = (games[_gameId].turn) % numPlayers;
-    emit SuggestionMade(_gameId, game_to_players[_gameId][activePlayerId]);
+    uint256 activePlayerIndex = (games[_gameId].turn) % numPlayers;
+    emit SuggestionMade(_gameId, game_to_players[_gameId][activePlayerIndex].id);
     emit SuggestionData(_gameId, _crime.suspect, _crime.weapon, _crime.room);
-    uint256 opponentBaseId = (activePlayerId + 1) % numPlayers;
+    uint256 opponentBaseIndex = (activePlayerIndex + 1) % numPlayers;
     for (uint256 i = 0; i < numPlayers; ++i) {
-      uint256 opponentId = (opponentBaseId + i) % numPlayers;
-      if (opponentId != activePlayerId) {
-        address player = game_to_players[_gameId][opponentId];
+      uint256 opponentIndex = (opponentBaseIndex + i) % numPlayers;
+      if (opponentIndex != activePlayerIndex) {
+        address player = game_to_players[_gameId][opponentIndex].id;
         uint256 numCards = player_to_cards[player].length;
         for (uint256 cardId = 0; cardId < numCards; ++cardId) {
           uint256 card = player_to_cards[player][cardId];
@@ -257,7 +264,7 @@ contract CrimeLab is BaseCase {
       // remove from list of game's players
       uint256 numPlayers = getNumPlayers(gameId);
       for (uint256 i = 0; i < numPlayers; i++) {
-        if (game_to_players[gameId][i] == msg.sender) {
+        if (game_to_players[gameId][i].id == msg.sender) {
           delete game_to_players[gameId][i];
           game_to_players[gameId][i] = game_to_players[gameId][numPlayers - 1];
           break;
