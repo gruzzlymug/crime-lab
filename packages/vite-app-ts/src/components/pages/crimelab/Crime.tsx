@@ -20,6 +20,7 @@ export const Crime: FC<ICrimeProps> = () => {
 
   // this is updated via a sideEffect below.
   const [players, setPlayers] = useState<{ id: string; ready: boolean; }[]>([]);
+  const [turn, setTurn] = useState(0);
 
   useEffect(() => {
     const getPlayers = async () => {
@@ -37,6 +38,17 @@ export const Crime: FC<ICrimeProps> = () => {
     getPlayers();
   }, [numberOfPlayers]);
 
+  useEffect(() => {
+    const getTurn = async () => {
+      const gid = gameId && gameId.toNumber() || 0;
+      const game = await crimeLabContract?.games(gid);
+      if (game) {
+        setTurn(game.turn.toNumber());
+      }
+    }
+    getTurn();
+  }, [numberOfPlayers]);
+
   return (
     <div>
       <div>
@@ -44,6 +56,9 @@ export const Crime: FC<ICrimeProps> = () => {
       </div>
       <div>
         GAME ID: {gameId?.toNumber()}
+      </div>
+      <div>
+        TURN: {turn}
       </div>
       <div>
         {numberOfPlayers?.toNumber()} PLAYERS
