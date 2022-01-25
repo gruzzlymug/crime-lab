@@ -14,6 +14,7 @@ contract CrimeLab is BaseCase {
   struct Player {
     address id;
     bool ready;
+    uint256 position;
     // TODO use or remove
     // uint256[] cards;
   }
@@ -70,6 +71,19 @@ contract CrimeLab is BaseCase {
     return games[_gameId].turn;
   }
 
+  function setPlayerPosition(uint256 position) public {
+    uint256 gameId = player_to_game[msg.sender];
+    require(gameId > 0, 'Player not in a game');
+
+    // TODO would be nice to have direct access to player props
+    uint256 numPlayers = uint256(game_to_players[gameId].length);
+    for (uint256 i = 0; i < numPlayers; ++i) {
+      if (game_to_players[gameId][i].id == msg.sender) {
+        game_to_players[gameId][i].position = position;
+      }
+    }
+  }
+
   function getJoinableGames() public view {
     // Games that have 1 or more players
     // Turn is 0
@@ -111,9 +125,13 @@ contract CrimeLab is BaseCase {
   }
 
   function addPlayerToGame(uint256 _gameId, address _player) internal {
-    require(getNumPlayers(_gameId) < 4, 'Max 4 players per game');
+    uint256 numPlayers = getNumPlayers(_gameId);
+    require(numPlayers < 4, 'Max 4 players per game');
 
     bool playerReady = true;
+
+    uint256[4] memory startingPositions = [uint256(1), 7, 73, 79];
+    uint256 position = startingPositions[numPlayers];
 
     player_to_game[_player] = _gameId;
     // attempt to fill any empty slots first
@@ -123,12 +141,13 @@ contract CrimeLab is BaseCase {
       if (game_to_players[_gameId][i].id == address(0)) {
         game_to_players[_gameId][i].id = _player;
         game_to_players[_gameId][i].ready = playerReady;
+        game_to_players[_gameId][i].position = position;
         break;
       }
     }
     // no empty slots...
     if (i == numSlots) {
-      game_to_players[_gameId].push(Player(_player, playerReady));
+      game_to_players[_gameId].push(Player(_player, playerReady, position));
     }
   }
 
@@ -269,13 +288,17 @@ contract CrimeLab is BaseCase {
   function leaveGame() external {
     uint256 gameId = player_to_game[msg.sender];
     if (gameId != 0) {
+      require(games[gameId].turn == 0, 'Leaving after start not yet supported');
+
       player_to_game[msg.sender] = 0;
       // remove from list of game's players
       uint256 numPlayers = getNumPlayers(gameId);
       for (uint256 i = 0; i < numPlayers; i++) {
         if (game_to_players[gameId][i].id == msg.sender) {
+          uint256 savedPosition = game_to_players[gameId][i].position;
           delete game_to_players[gameId][i];
           game_to_players[gameId][i] = game_to_players[gameId][numPlayers - 1];
+          game_to_players[gameId][i].position = savedPosition;
           break;
         }
       }

@@ -10,6 +10,7 @@ export interface IPlayersProps {
   gameId: BigInteger
 }
 
+
 export const Players: FC<IPlayersProps> = (props) => {
   const ethersContext = useEthersContext();
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
@@ -36,7 +37,7 @@ export const Players: FC<IPlayersProps> = (props) => {
         renderItem={(item: any) => {
           return (
             <List.Item >
-              {item}
+              {item.id}
             </List.Item>
           );
         }}

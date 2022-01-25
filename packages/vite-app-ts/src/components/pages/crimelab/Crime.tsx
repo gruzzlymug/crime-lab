@@ -5,8 +5,23 @@ import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { Checkbox } from 'antd';
 import { Board } from './Board';
+import { BigNumber } from 'ethers';
 
 export interface ICrimeProps {
+}
+
+interface PlayerProps {
+  id: string,
+  ready: boolean,
+  position: BigNumber
+}
+
+function formatAddress(address: string) {
+  return address.slice(0, 6) + '...' + address.slice(address.length - 4, address.length);
+}
+
+function padNumber(n: BigNumber) {
+  return (n.toNumber() < 10 ? '0' : '') + n.toNumber()
 }
 
 export const Crime: FC<ICrimeProps> = () => {
@@ -20,7 +35,7 @@ export const Crime: FC<ICrimeProps> = () => {
   const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
 
   // this is updated via a sideEffect below.
-  const [players, setPlayers] = useState<{ id: string; ready: boolean; }[]>([]);
+  const [players, setPlayers] = useState<PlayerProps[]>([]);
 
   useEffect(() => {
     const getPlayers = async () => {
@@ -53,11 +68,14 @@ export const Crime: FC<ICrimeProps> = () => {
         {numPlayers?.toNumber()} PLAYERS
         {players.map(player => {
           return (
-            <div key={player.id}><Checkbox checked={player.ready} disabled /> {player.id}</div>
+            <div key={player.id}>
+              <Checkbox checked={player.ready} disabled />&nbsp;
+              {formatAddress(player.id)} @ {padNumber(player.position)}
+            </div>
           )
         })}
       </div>
-      <Board />
+      <Board players={players} />
     </div>
   )
 }

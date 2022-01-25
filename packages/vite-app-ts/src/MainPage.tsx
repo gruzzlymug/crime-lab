@@ -99,10 +99,10 @@ export const Main: FC = () => {
           </Route>
           {/* you can add routes here like the below examlples */}
           <Route path="/crimes">
-            <Crimes />
+            <CrimeLab />
           </Route>
           <Route path="/crimelab">
-            <CrimeLab />
+            <Crimes />
           </Route>
           <Route
             exact

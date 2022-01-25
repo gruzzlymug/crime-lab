@@ -23,15 +23,6 @@ export const MainPageMenu: FC<IMainPageMenuProps> = (props) => (
         YourContract
       </Link>
     </Menu.Item>
-    <Menu.Item key="/crimes">
-      <Link
-        onClick={() => {
-          props.setRoute('/crimes');
-        }}
-        to="/crimes">
-        Crimes
-      </Link>
-    </Menu.Item>
     <Menu.Item key="/crimelab">
       <Link
         onClick={() => {
@@ -39,6 +30,15 @@ export const MainPageMenu: FC<IMainPageMenuProps> = (props) => (
         }}
         to="/crimelab">
         CrimeLab
+      </Link>
+    </Menu.Item>
+    <Menu.Item key="/crimes">
+      <Link
+        onClick={() => {
+          props.setRoute('/crimes');
+        }}
+        to="/crimes">
+        Crimes
       </Link>
     </Menu.Item>
     <Menu.Item key="/minimalgame">

@@ -168,7 +168,6 @@ export const ExampleUI: FC<IExampleUIProps> = (props) => {
           bordered
           dataSource={setPurposeEvents}
           renderItem={(item: any) => {
-            // debugger
             return (
               <List.Item key={item.blockNumber + '_' + item.args[0] + '_' + item.args[1]}>
                 <Address address={item.args[0]} ensProvider={mainnetProvider} fontSize={16} />
