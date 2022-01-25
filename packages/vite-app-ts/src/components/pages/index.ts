@@ -7,7 +7,7 @@ export const ExampleUI = lazier(() => import('./exampleui/ExampleUI'), 'ExampleU
 export const Checkout = lazier(() => import('./checkout/Checkout'), 'Checkout');
 export const Subgraph = lazier(() => import('./subgraph/Subgraph'), 'Subgraph');
 export const Hints = lazier(() => import('./hints/Hints'), 'Hints');
-export const Crimes = lazier(() => import('./crimes/Crimes'), 'Crimes');
-export const MinimalGame = lazier(() => import('./minimalgame/MinimalGame'), 'MinimalGame');
 export const CrimeLab = lazier(() => import('./crimelab/CrimeLab'), 'CrimeLab');
-export const Crime = lazier(() => import('./crimelab/Crime'), 'Crime');
+export const MinimalGame = lazier(() => import('./minimalgame/MinimalGame'), 'MinimalGame');
+export const CrimeXXX = lazier(() => import('./crimes/CrimeLab'), 'CrimeLab');
+export const Crime = lazier(() => import('./crimes/Crime'), 'Crime');

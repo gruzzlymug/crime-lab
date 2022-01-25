@@ -6,7 +6,7 @@ import { useContractReader, useBalance, useEthersAdaptorFromProviderOrSigners } 
 import { useDexEthPrice } from 'eth-hooks/dapps';
 
 import { GenericContract } from 'eth-components/ant/generic-contract';
-import { Crimes, CrimeLab, Crime, Hints, Subgraph, ExampleUI, MinimalGame } from '~~/components/pages';
+import { CrimeLab, CrimeXXX, Crime, Hints, Subgraph, ExampleUI, MinimalGame } from '~~/components/pages';
 
 import { useEventListener } from 'eth-hooks';
 import { MainPageMenu, MainPageContracts, MainPageFooter, MainPageHeader } from './components/main';
@@ -97,12 +97,12 @@ export const Main: FC = () => {
           <Route exact path="/">
             <MainPageContracts scaffoldAppProviders={scaffoldAppProviders} />
           </Route>
-          {/* you can add routes here like the below examlples */}
-          <Route path="/crimes">
+          {/* you can add routes here like the below examples */}
+          <Route exact path="/crimelab">
             <CrimeLab />
           </Route>
-          <Route path="/crimelab">
-            <Crimes />
+          <Route path="/crimes">
+            <CrimeXXX />
           </Route>
           <Route
             exact
