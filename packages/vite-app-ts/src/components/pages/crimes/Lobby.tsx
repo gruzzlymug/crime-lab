@@ -6,16 +6,32 @@ import { useAppContracts } from '~~/config/contractContext';
 import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
 import { Players } from './Players'
-import { JoinGameButton } from './JoinGameButton';
 
 import { Button, Input, List } from 'antd';
 import { Address } from 'eth-components/ant';
 import { GameCreatedEvent } from '~~/generated/contract-types/CrimeLab';
 
-export interface ICrimeLabProps {
+export interface ILobbyProps {
 }
 
-export const CrimeLab: FC<ICrimeLabProps> = (props) => {
+// TODO possibly put this somewhere shareable
+function logTransactionUpdate(update: any) {
+  console.log("📡 Transaction Update:", update);
+  if (update && (update.status === "confirmed" || update.status === 1)) {
+    console.log(" 🍾 Transaction " + update.hash + " finished!");
+    console.log(
+      " ⛽️ " +
+      update.gasUsed +
+      "/" +
+      (update.gasLimit || update.gas) +
+      " @ " +
+      parseFloat(update.gasPrice) / 1000000000 +
+      " gwei",
+    );
+  }
+}
+
+export const Lobby: FC<ILobbyProps> = () => {
   const ethersContext = useEthersContext();
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
   const [newGameName, setNewGameName] = useState("");
@@ -28,40 +44,45 @@ export const CrimeLab: FC<ICrimeLabProps> = (props) => {
 
   const [gameCreatedEvents] = useEventListener<GameCreatedEvent>(crimeLabContract, crimeLabContract?.filters.GameCreated(), 1);
 
+  const handleCreateButtonClick = async () => {
+    const result = tx?.(crimeLabContract?.createGame(newGameName), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
+  const handleJoinButtonClick = async () => {
+    const result = tx?.(crimeLabContract?.joinAnyGame(), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
   return (
     <div style={{ margin: 8 }}>
       {(gameId && (gameId.toNumber() > 0)) && <Redirect to={`/crime/${gameId}`} />}
-      <Input
-        placeholder={"Game name"}
-        onChange={e => {
-          setNewGameName(e.target.value);
-        }}
-      />
-      <Button
-        style={{ marginTop: 8 }}
-        onClick={async () => {
-          const result = tx?.(crimeLabContract?.createGame(newGameName), (update: any) => {
-            console.log("📡 Transaction Update:", update);
-            if (update && (update.status === "confirmed" || update.status === 1)) {
-              console.log(" 🍾 Transaction " + update.hash + " finished!");
-              console.log(
-                " ⛽️ " +
-                update.gasUsed +
-                "/" +
-                (update.gasLimit || update.gas) +
-                " @ " +
-                parseFloat(update.gasPrice) / 1000000000 +
-                " gwei",
-              );
-            }
-          });
-          console.log("awaiting metamask/web3 confirm result...", result);
-          const newGame = await result;
-        }}
-      >
-        Create new game
-      </Button>
-      <JoinGameButton tx={tx} />
+      <div>
+        <Input
+          placeholder={"Game name"}
+          onChange={e => { setNewGameName(e.target.value); }}
+        />
+        <Button
+          style={{ marginTop: 8 }}
+          onClick={handleCreateButtonClick}
+        >
+          Create new game
+        </Button>
+      </div>
+      <div>
+        <Button
+          style={{ marginTop: 8 }}
+          onClick={handleJoinButtonClick}
+        >
+          Join Game
+        </Button>
+      </div>
 
       <div style={{ width: 600, margin: 'auto', marginTop: 32, paddingBottom: 32 }}>
         <h2>Events:</h2>
