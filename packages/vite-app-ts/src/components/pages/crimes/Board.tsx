@@ -1,12 +1,12 @@
-import React from 'react';
 import { FC, useContext, useState } from 'react';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { useContractReader, useGasPrice } from 'eth-hooks';
 import { transactor, TTransactorFunc } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
-import { Row, Col } from 'antd';
+import { Button, Row, Col } from 'antd';
 import { CrimeLab } from '~~/generated/contract-types';
+import { logTransactionUpdate } from '~~/components/common';
 import 'antd/dist/antd.css';
 
 export interface IBoardProps {
@@ -17,16 +17,6 @@ interface Dimensions {
   rows: number,
   cols: number
 };
-
-// BILLIARD
-// STUDY
-// HALL
-// LOUNGE
-// DINING
-// BALLROOM
-// CONSERVATORY
-// LIBRARY
-// KITCHEN
 
 function generateMap(dims: Dimensions): Map<number, string[]> {
   const startColor = "#d00";
@@ -64,19 +54,7 @@ function handleCellClickFactory(tx: TTransactorFunc | undefined, contract: Crime
   const handleCellClick = async (e: any) => {
     const cellId = parseInt(e.target.id);
     const result = tx?.(contract?.setPlayerPosition(cellId), (update: any) => {
-      console.log("📡 Transaction Update:", update);
-      if (update && (update.status === "confirmed" || update.status === 1)) {
-        console.log(" 🍾 Transaction " + update.hash + " finished!");
-        console.log(
-          " ⛽️ " +
-          update.gasUsed +
-          "/" +
-          (update.gasLimit || update.gas) +
-          " @ " +
-          parseFloat(update.gasPrice) / 1000000000 +
-          " gwei",
-        );
-      }
+      logTransactionUpdate(update);
     });
     console.log("awaiting metamask/web3 confirm result...", result);
     const res = await result;
@@ -141,9 +119,18 @@ export const Board: FC<IBoardProps> = ({ players }) => {
   const map = generateMap(boardDims);
   const board = generateBoard(boardDims, handleCellClick, map, players);
 
+  const handleEndTurnButtonClick = async () => {
+    const result = tx?.(crimeLabContract?.endTurn(), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
   return (
     <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 16 }}>
-      {board}
-    </div>
+      <div>{board}</div>
+      <div style={{ float: 'right' }}><Button onClick={handleEndTurnButtonClick}>End Turn</Button></div>
+    </div >
   );
 }

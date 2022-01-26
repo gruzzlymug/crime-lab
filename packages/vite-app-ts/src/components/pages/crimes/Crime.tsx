@@ -1,11 +1,11 @@
-import { FC } from 'react';
-import { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useContractReader, useEventListener } from 'eth-hooks';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { Checkbox } from 'antd';
 import { Board } from './Board';
 import { BigNumber } from 'ethers';
+import { formatAddress } from '~~/components/common';
 
 export interface ICrimeProps {
 }
@@ -14,10 +14,6 @@ interface PlayerProps {
   id: string,
   ready: boolean,
   position: BigNumber
-}
-
-function formatAddress(address: string) {
-  return address.slice(0, 6) + '...' + address.slice(address.length - 4, address.length);
 }
 
 function padNumber(n: BigNumber) {
@@ -32,6 +28,7 @@ export const Crime: FC<ICrimeProps> = () => {
   const [gameName] = useContractReader(crimeLabContract, crimeLabContract?.getName, [gameId || 0]);
   // this is updated whenever the 'PlayerJoined' event is emitted
   const [numPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
+  const [playerMoved] = useContractReader(crimeLabContract, crimeLabContract?.getPlayerMoved, [gameId || 0], crimeLabContract?.filters.PlayerMoved());
   const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
 
   // this is updated via a sideEffect below.
@@ -51,7 +48,7 @@ export const Crime: FC<ICrimeProps> = () => {
       setPlayers(players);
     };
     getPlayers();
-  }, [numPlayers, gameTurn]);
+  }, [numPlayers, playerMoved, gameTurn]);
 
   return (
     <div>

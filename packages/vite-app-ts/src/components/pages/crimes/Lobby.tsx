@@ -5,30 +5,13 @@ import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
-import { Players } from './Players'
-
 import { Button, Input, List } from 'antd';
 import { Address } from 'eth-components/ant';
+import { Players } from './Players'
 import { GameCreatedEvent } from '~~/generated/contract-types/CrimeLab';
+import { logTransactionUpdate } from '~~/components/common';
 
 export interface ILobbyProps {
-}
-
-// TODO possibly put this somewhere shareable
-function logTransactionUpdate(update: any) {
-  console.log("📡 Transaction Update:", update);
-  if (update && (update.status === "confirmed" || update.status === 1)) {
-    console.log(" 🍾 Transaction " + update.hash + " finished!");
-    console.log(
-      " ⛽️ " +
-      update.gasUsed +
-      "/" +
-      (update.gasLimit || update.gas) +
-      " @ " +
-      parseFloat(update.gasPrice) / 1000000000 +
-      " gwei",
-    );
-  }
 }
 
 export const Lobby: FC<ILobbyProps> = () => {

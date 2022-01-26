@@ -9,6 +9,7 @@ contract CrimeLab is BaseCase {
   event PlayerJoined(uint256 gameId, address player);
   event SuggestionMade(uint256 gameId, address player);
   event SuggestionData(uint256 gameId, uint256 suspect, uint256 weapon, uint256 room);
+  event PlayerMoved(uint256 gameId, address player);
   event TurnTaken(uint256 gameId);
 
   struct Player {
@@ -30,6 +31,7 @@ contract CrimeLab is BaseCase {
     Crime crime;
     uint256 discarded;
     uint256 turn;
+    bool moved;
   }
 
   mapping(uint256 => Player[]) public game_to_players;
@@ -43,7 +45,7 @@ contract CrimeLab is BaseCase {
     Crime memory crime = Crime(INVALID, INVALID, INVALID);
     uint256 discarded = 0;
     uint256 turn = 0;
-    games.push(Game('** INVALID **', crime, discarded, turn));
+    games.push(Game('** INVALID **', crime, discarded, turn, false));
   }
 
   function getName(uint256 _gameId) external view returns (string memory) {
@@ -65,24 +67,6 @@ contract CrimeLab is BaseCase {
 
   function getNumCards(address _player) public view returns (uint256) {
     return player_to_cards[_player].length;
-  }
-
-  function getTurn(uint256 _gameId) external view returns (uint256) {
-    return games[_gameId].turn;
-  }
-
-  function setPlayerPosition(uint256 _position) public {
-    uint256 gameId = player_to_game[msg.sender];
-    require(gameId != 0, 'Player not in game');
-
-    Game memory game = games[gameId];
-    uint256 numPlayers = getNumPlayers(gameId);
-    uint256 playerIndex = game.turn % numPlayers;
-    require(game_to_players[gameId][playerIndex].id == msg.sender, 'Player not active');
-    game_to_players[gameId][playerIndex].position = _position;
-
-    // TODO use dedicated event (PlayerMoved) and dedicated filter, preferably
-    emit TurnTaken(gameId);
   }
 
   function getJoinableGames() public view {
@@ -117,7 +101,7 @@ contract CrimeLab is BaseCase {
 
     uint256 turn = 0;
 
-    games.push(Game(_name, crime, discarded, turn));
+    games.push(Game(_name, crime, discarded, turn, false));
     uint256 id = games.length - 1;
 
     addPlayerToGame(id, msg.sender);
@@ -223,11 +207,45 @@ contract CrimeLab is BaseCase {
       }
     }
 
-    games[_gameId].turn += 1;
-
-    emit TurnTaken(_gameId);
+    // TODO this feels a bit janky
+    endTurn();
   }
 
+  function setPlayerPosition(uint256 _position) public {
+    uint256 gameIndex = player_to_game[msg.sender];
+    require(gameIndex != 0, 'Player not in game');
+
+    Game storage game = games[gameIndex];
+    uint256 numPlayers = getNumPlayers(gameIndex);
+    uint256 playerIndex = game.turn % numPlayers;
+    require(game_to_players[gameIndex][playerIndex].id == msg.sender, 'Player not active');
+    game_to_players[gameIndex][playerIndex].position = _position;
+    game.moved = true;
+
+    emit PlayerMoved(gameIndex, msg.sender);
+  }
+
+  function getPlayerMoved(uint256 _gameId) external view returns (bool) {
+    return games[_gameId].moved;
+  }
+
+  function getTurn(uint256 _gameId) external view returns (uint256) {
+    return games[_gameId].turn;
+  }
+
+  // TODO finalize parameter usage / avoidance
+  function endTurn() public {
+    uint256 gameIndex = player_to_game[msg.sender];
+    require(gameIndex != 0, 'Player not in game');
+
+    Game storage game = games[gameIndex];
+    game.turn += 1;
+    game.moved = false;
+
+    emit TurnTaken(gameIndex);
+  }
+
+  // TODO this is a placeholder and will not survive
   function takeTurn(uint256 _gameId) public {
     // whose turn is it
     // what happens during turn
