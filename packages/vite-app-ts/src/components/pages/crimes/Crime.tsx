@@ -51,7 +51,7 @@ export const Crime: FC<ICrimeProps> = () => {
       setPlayers(players);
     };
     getPlayers();
-  }, [numPlayers]);
+  }, [numPlayers, gameTurn]);
 
   return (
     <div>

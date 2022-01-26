@@ -63,25 +63,26 @@ contract CrimeLab is BaseCase {
     return numPlayers;
   }
 
-  function getNumCards(address player) public view returns (uint256) {
-    return player_to_cards[player].length;
+  function getNumCards(address _player) public view returns (uint256) {
+    return player_to_cards[_player].length;
   }
 
   function getTurn(uint256 _gameId) external view returns (uint256) {
     return games[_gameId].turn;
   }
 
-  function setPlayerPosition(uint256 position) public {
+  function setPlayerPosition(uint256 _position) public {
     uint256 gameId = player_to_game[msg.sender];
-    require(gameId > 0, 'Player not in a game');
+    require(gameId != 0, 'Player not in game');
 
-    // TODO would be nice to have direct access to player props
-    uint256 numPlayers = uint256(game_to_players[gameId].length);
-    for (uint256 i = 0; i < numPlayers; ++i) {
-      if (game_to_players[gameId][i].id == msg.sender) {
-        game_to_players[gameId][i].position = position;
-      }
-    }
+    Game memory game = games[gameId];
+    uint256 numPlayers = getNumPlayers(gameId);
+    uint256 playerIndex = game.turn % numPlayers;
+    require(game_to_players[gameId][playerIndex].id == msg.sender, 'Player not active');
+    game_to_players[gameId][playerIndex].position = _position;
+
+    // TODO use dedicated event (PlayerMoved) and dedicated filter, preferably
+    emit TurnTaken(gameId);
   }
 
   function getJoinableGames() public view {
@@ -281,9 +282,10 @@ contract CrimeLab is BaseCase {
     return solved;
   }
 
-  // TODO leave game in playable state when possible
-  // TODO discard all player cards
+  // NOTE leave game in playable state when possible
+  // TODO deal with leaving after start
   // TODO deal with game-ending exits
+  // TODO discard all player cards
   // TODO consider stake sacrifice as penalty
   function leaveGame() external {
     uint256 gameId = player_to_game[msg.sender];
