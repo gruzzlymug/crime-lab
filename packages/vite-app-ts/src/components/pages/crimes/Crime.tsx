@@ -50,6 +50,9 @@ export const Crime: FC<ICrimeProps> = () => {
     getPlayers();
   }, [numPlayers, playerMoved, gameTurn]);
 
+  const turn = gameTurn?.toNumber() || 0;
+  const np = numPlayers?.toNumber() || 0;
+
   return (
     <div>
       <div>
@@ -59,14 +62,17 @@ export const Crime: FC<ICrimeProps> = () => {
         GAME ID: {gameId?.toNumber()}
       </div>
       <div>
-        TURN: {gameTurn?.toNumber()}
+        TURN: {turn}
       </div>
       <div>
         {numPlayers?.toNumber()} PLAYERS
-        {players.map(player => {
+        {players.map((player, index) => {
           return (
             <div key={player.id}>
-              <Checkbox checked={player.ready} disabled />&nbsp;
+              {turn === 0
+                ? <Checkbox checked={player.ready} disabled />
+                : (turn % np == index) ? '➜' : '\xa0\xa0\xa0'}
+              &nbsp;
               {formatAddress(player.id)} @ {padNumber(player.position)}
             </div>
           )
