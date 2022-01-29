@@ -219,20 +219,8 @@ contract CrimeLab is BaseCase {
 
     uint256 count = 0;
     for (uint256 i = 0; i < deck.length; ++i) {
-      uint256 flag = 1 << i;
-      if (games[gameIndex].discarded & flag != 0) {
-        ++count;
-      }
+      count += (games[gameIndex].discarded >> i) & 1;
     }
-
-    // TODO fix compile error, evaluate
-    // uint32 v = uint32(games[gameIndex].discarded & 0xFFFFFFFF);
-    // v = v - ((v >> 1) & 0x55555555);
-    // v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-    // uint256 bits_set = (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
-
-    // console.log('COUNT ', count);
-    // console.log('BITS  ', bits_set);
 
     uint256 cardIndex = 0;
     uint256[] memory output = new uint256[](count);

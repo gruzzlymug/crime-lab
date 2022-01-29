@@ -55,7 +55,7 @@ export const Crime: FC<ICrimeProps> = () => {
   const turn = gameTurn?.toNumber() || 0;
   const activePlayerIndex = turn % (numPlayers?.toNumber() || 0);
 
-  const sortedHand = hand?.map((card) => { return card.toNumber() }).sort((a, b) => { return a - b });
+  const sortedHand = hand?.map(card => { return card.toNumber() }).sort((a, b) => { return a - b });
 
   return (
     <div>
@@ -82,7 +82,7 @@ export const Crime: FC<ICrimeProps> = () => {
           )
         })}
       </div>
-      <div>YOUR HAND: {sortedHand && sortedHand?.length > 0 ? sortedHand?.map((card) => { return card + " " }) : "No Cards"}</div>
+      <div>YOUR HAND: {sortedHand && sortedHand.length > 0 ? sortedHand?.map((card) => { return card + " " }) : "No Cards"}</div>
       <Board players={players} />
     </div>
   )
