@@ -30,6 +30,8 @@ export const Crime: FC<ICrimeProps> = () => {
   const [numPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
   const [playerMoved] = useContractReader(crimeLabContract, crimeLabContract?.getPlayerMoved, [gameId || 0], crimeLabContract?.filters.PlayerMoved());
   const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
+  const [hand] = useContractReader(crimeLabContract, crimeLabContract?.getHand, [], crimeLabContract?.filters.CardDiscarded());
+  const [discardPile] = useContractReader(crimeLabContract, crimeLabContract?.getDiscardPile, [], crimeLabContract?.filters.CardDiscarded());
 
   // this is updated via a sideEffect below.
   const [players, setPlayers] = useState<PlayerProps[]>([]);
@@ -51,7 +53,9 @@ export const Crime: FC<ICrimeProps> = () => {
   }, [numPlayers, playerMoved, gameTurn]);
 
   const turn = gameTurn?.toNumber() || 0;
-  const np = numPlayers?.toNumber() || 0;
+  const activePlayerIndex = turn % (numPlayers?.toNumber() || 0);
+
+  const sortedHand = hand?.map((card) => { return card.toNumber() }).sort((a, b) => { return a - b });
 
   return (
     <div>
@@ -71,13 +75,14 @@ export const Crime: FC<ICrimeProps> = () => {
             <div key={player.id}>
               {turn === 0
                 ? <Checkbox checked={player.ready} disabled />
-                : (turn % np == index) ? '➜' : '\xa0\xa0\xa0'}
+                : (index === activePlayerIndex) ? '➜' : '\xa0\xa0\xa0'}
               &nbsp;
               {formatAddress(player.id)} @ {padNumber(player.position)}
             </div>
           )
         })}
       </div>
+      <div>YOUR HAND: {sortedHand && sortedHand?.length > 0 ? sortedHand?.map((card) => { return card + " " }) : "No Cards"}</div>
       <Board players={players} />
     </div>
   )
