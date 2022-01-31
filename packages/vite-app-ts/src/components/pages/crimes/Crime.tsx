@@ -4,6 +4,7 @@ import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { Checkbox } from 'antd';
 import { Board } from './Board';
+import { PlayingCards } from './PlayingCards';
 import { BigNumber } from 'ethers';
 import { formatAddress } from '~~/components/common';
 
@@ -55,7 +56,10 @@ export const Crime: FC<ICrimeProps> = () => {
   const turn = gameTurn?.toNumber() || 0;
   const activePlayerIndex = turn % (numPlayers?.toNumber() || 0);
 
-  const sortedHand = hand?.map(card => { return card.toNumber() }).sort((a, b) => { return a - b });
+  let sortedHand: Array<number> = [];
+  if (hand) {
+    sortedHand = hand.map(card => { return card.toNumber() }).sort((a, b) => { return a - b });
+  }
 
   return (
     <div>
@@ -82,8 +86,9 @@ export const Crime: FC<ICrimeProps> = () => {
           )
         })}
       </div>
-      <div>YOUR HAND: {sortedHand && sortedHand.length > 0 ? sortedHand?.map((card) => { return card + " " }) : "No Cards"}</div>
+      <div>YOUR HAND: {sortedHand.length > 0 ? sortedHand.map((card) => { return card + " " }) : "No Cards"}</div>
       <Board players={players} />
+      <PlayingCards hand={sortedHand} />
     </div>
   )
 }

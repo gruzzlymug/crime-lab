@@ -147,8 +147,6 @@ export const Main: FC = () => {
           */}
         </Switch>
       </BrowserRouter>
-
-      <MainPageFooter scaffoldAppProviders={scaffoldAppProviders} price={ethPrice} />
     </div>
   );
 };
