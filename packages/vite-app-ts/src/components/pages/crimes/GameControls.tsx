@@ -6,19 +6,13 @@ import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
 import { Button } from 'antd';
 import { logTransactionUpdate } from '~~/components/common';
-
-// const handleStartGameButtonClick = async () => {
-//   const result = tx?.(crimeLabContract?.startGame(game), (update: any) => {
-//     logTransactionUpdate(update);
-//   });
-//   console.log("awaiting metamask/web3 confirm result...", result);
-//   const unused = await result;
-// }
+import { CrimeLab } from '~~/generated/contract-types';
 
 export interface IGameControlsProps {
+  gameId: number
 }
 
-export const GameControls: FC<IGameControlsProps> = () => {
+export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
   const ethersContext = useEthersContext();
 
   const ethComponentsSettings = useContext(EthComponentsSettingsContext);
@@ -27,8 +21,24 @@ export const GameControls: FC<IGameControlsProps> = () => {
 
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
 
+  const handleStartGameButtonClick = async () => {
+    const result = tx?.(crimeLabContract?.startGame(gameId), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
   const handleEndTurnButtonClick = async () => {
     const result = tx?.(crimeLabContract?.endTurn(), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
+  const handleLeaveGameButtonClick = async () => {
+    const result = tx?.(crimeLabContract?.leaveGame(), (update: any) => {
       logTransactionUpdate(update);
     });
     console.log("awaiting metamask/web3 confirm result...", result);
@@ -41,7 +51,7 @@ export const GameControls: FC<IGameControlsProps> = () => {
         <Button disabled>
           Ready
         </Button>
-        <Button disabled>
+        <Button onClick={handleStartGameButtonClick}>
           Start Game
         </Button>
         <Button onClick={handleEndTurnButtonClick}>
@@ -53,8 +63,8 @@ export const GameControls: FC<IGameControlsProps> = () => {
         <Button disabled>
           Make Accusation
         </Button>
-        <Button disabled>
-          Quit Game
+        <Button onClick={handleLeaveGameButtonClick}>
+          Leave Game
         </Button>
       </div>
     </div>

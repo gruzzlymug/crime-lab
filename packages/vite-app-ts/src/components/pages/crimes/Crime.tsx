@@ -67,7 +67,9 @@ export const Crime: FC<ICrimeProps> = () => {
         activePlayerIndex={activePlayerIndex}
         hand={sortedHand}
       />
-      <GameControls />
+      <GameControls
+        gameId={gameId?.toNumber() || 0}
+      />
       <Board players={players} />
       <PlayingCards hand={sortedHand} />
     </div>
