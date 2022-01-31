@@ -2,25 +2,19 @@ import { FC, useEffect, useState } from 'react';
 import { useContractReader, useEventListener } from 'eth-hooks';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
-import { Checkbox, Typography, Statistic } from 'antd';
-const { Title, Text } = Typography
-
+import { BigNumber } from 'ethers';
 import { Board } from './Board';
 import { PlayingCards } from './PlayingCards';
-import { BigNumber } from 'ethers';
-import { formatAddress } from '~~/components/common';
+import { GameStatus } from './GameStatus';
 
 export interface ICrimeProps {
 }
 
+// TODO ¡¡¡this is pasted in Status.tsx!!!
 interface PlayerProps {
   id: string,
   ready: boolean,
   position: BigNumber
-}
-
-function padNumber(n: BigNumber) {
-  return (n.toNumber() < 10 ? '0' : '') + n.toNumber()
 }
 
 export const Crime: FC<ICrimeProps> = () => {
@@ -29,7 +23,6 @@ export const Crime: FC<ICrimeProps> = () => {
 
   const [gameId] = useContractReader(crimeLabContract, crimeLabContract?.getGameId, []);
   const [gameName] = useContractReader(crimeLabContract, crimeLabContract?.getName, [gameId || 0]);
-  // this is updated whenever the 'PlayerJoined' event is emitted
   const [numPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
   const [playerMoved] = useContractReader(crimeLabContract, crimeLabContract?.getPlayerMoved, [gameId || 0], crimeLabContract?.filters.PlayerMoved());
   const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
@@ -65,41 +58,14 @@ export const Crime: FC<ICrimeProps> = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-evenly', }}>
-        <div>
-          <div>
-            <Text type="secondary">crime:</Text>
-            <Title level={3} style={{ marginTop: 0 }}>{gameName}</Title>
-          </div>
-          <Statistic title="gameId:" value={gameId?.toNumber()} precision={0} />
-        </div>
-        <div>
-          <Statistic title="turn" value={turn} precision={0} />
-        </div>
-        <div>
-          <Statistic title="players" value={numPlayers?.toNumber()} precision={0} />
-        </div>
-        <div>
-          <Text type="secondary">Players</Text>
-          {players.map((player, index) => {
-            return (
-              <div key={player.id}>
-                {turn === 0
-                  ? <Checkbox checked={player.ready} disabled />
-                  : (index === activePlayerIndex) ? '➜' : '\xa0\xa0\xa0'}
-                &nbsp;
-                {formatAddress(player.id)} @ {padNumber(player.position)}
-              </div>
-            )
-          })}
-        </div>
-        <div>
-          <Text type="secondary">Your hand</Text>
-          <Title level={3} style={{ marginTop: 0 }}>
-            {sortedHand.length > 0 ? sortedHand.map((card) => { return card + " " }) : "no cards"}
-          </Title>
-        </div>
-      </div>
+      <GameStatus
+        gameId={gameId?.toNumber() || 0}
+        gameName={gameName || '** no game **'}
+        turn={turn}
+        players={players}
+        activePlayerIndex={activePlayerIndex}
+        hand={sortedHand}
+      />
       <Board players={players} />
       <PlayingCards hand={sortedHand} />
     </div>
