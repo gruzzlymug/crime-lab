@@ -49,21 +49,6 @@ function generateMap(dims: Dimensions): Map<number, string[]> {
   return gameMap;
 }
 
-// TODO ideally the handler would be a top-level fn
-function handleCellClickFactory(tx: TTransactorFunc | undefined, contract: CrimeLab | undefined) {
-  const handleCellClick = async (e: any) => {
-    const cellId = parseInt(e.target.id);
-    const result = tx?.(contract?.setPlayerPosition(cellId), (update: any) => {
-      logTransactionUpdate(update);
-    });
-    console.log("awaiting metamask/web3 confirm result...", result);
-    const res = await result;
-    console.log("res: ", res);
-  }
-
-  return handleCellClick;
-}
-
 function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number, string[]>, players: any[]): Array<JSX.Element> {
   let board: Array<JSX.Element> = [];
   for (let r: number = 0; r < dims.rows; r++) {
@@ -117,8 +102,16 @@ export const Board: FC<IBoardProps> = ({ players }) => {
 
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
 
+  const handleCellClick = async (e: any) => {
+    const cellId = parseInt(e.target.id);
+    const result = tx?.(crimeLabContract?.setPlayerPosition(cellId), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
   const boardDims: Dimensions = { rows: 9, cols: 9 };
-  const handleCellClick = handleCellClickFactory(tx, crimeLabContract);
   const map = generateMap(boardDims);
   const board = generateBoard(boardDims, handleCellClick, map, players);
 
