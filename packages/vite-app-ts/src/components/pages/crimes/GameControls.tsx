@@ -29,6 +29,21 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
     const unused = await result;
   }
 
+  const handleMakeSuggestionButtonClick = async () => {
+    // A random crime! So senseless!
+    const crime = {
+      suspect: Math.floor(Math.random() * (6 - 1)) + 1,
+      weapon: Math.floor(Math.random() * (12 - 7)) + 7,
+      room: Math.floor(Math.random() * (21 - 13)) + 13
+    }
+
+    const result = tx?.(crimeLabContract?.makeSuggestion(gameId, crime), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
   const handleEndTurnButtonClick = async () => {
     const result = tx?.(crimeLabContract?.endTurn(), (update: any) => {
       logTransactionUpdate(update);
@@ -54,14 +69,14 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
         <Button onClick={handleStartGameButtonClick}>
           Start Game
         </Button>
-        <Button onClick={handleEndTurnButtonClick}>
-          End Turn
-        </Button>
-        <Button disabled>
+        <Button onClick={handleMakeSuggestionButtonClick}>
           Make Suggestion
         </Button>
         <Button disabled>
           Make Accusation
+        </Button>
+        <Button onClick={handleEndTurnButtonClick}>
+          End Turn
         </Button>
         <Button onClick={handleLeaveGameButtonClick}>
           Leave Game

@@ -267,20 +267,8 @@ contract CrimeLab is BaseCase {
     emit TurnTaken(gameIndex);
   }
 
-  // TODO this is a placeholder and will not survive
-  function takeTurn(uint256 _gameId) public {
-    // whose turn is it
-    // what happens during turn
-    Crime memory suggestion = Crime(SCARLET, WRENCH, CONSERVATORY);
-    makeSuggestion(_gameId, suggestion);
-    // who is next
-    games[_gameId].turn += 1;
-
-    emit TurnTaken(_gameId);
-  }
-
   function makeSuggestion(uint256 _gameId, Crime memory _crime) public returns (bool) {
-    require(_gameId >= 0 && _gameId < games.length);
+    require(_gameId > 0 && _gameId < games.length);
 
     bool disproved = false;
 
@@ -298,6 +286,8 @@ contract CrimeLab is BaseCase {
         for (uint256 cardId = 0; cardId < numCards; ++cardId) {
           uint256 card = player_to_cards[player][cardId];
           if (card == _crime.suspect || card == _crime.weapon || card == _crime.room) {
+            games[_gameId].discarded += 1 << card;
+            delete player_to_cards[player][cardId];
             emit CardDiscarded(card, player);
             disproved = true;
             break;
