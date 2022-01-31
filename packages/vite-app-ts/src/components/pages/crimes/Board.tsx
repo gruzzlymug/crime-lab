@@ -64,10 +64,10 @@ function handleCellClickFactory(tx: TTransactorFunc | undefined, contract: Crime
   return handleCellClick;
 }
 
-function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number, string[]>, players: any[]): any {
-  let board: Array<any> = [];
+function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number, string[]>, players: any[]): Array<JSX.Element> {
+  let board: Array<JSX.Element> = [];
   for (let r: number = 0; r < dims.rows; r++) {
-    let currentColumns: Array<any> = [];
+    let currentColumns: Array<JSX.Element> = [];
     for (let c: number = 0; c < dims.cols; c++) {
       let cellColor = "#ddd";
       let cellContent = "□";
@@ -94,12 +94,15 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
         }
       }
 
-      const style = { background: cellColor };
-      const cell = <Col key={cellId} span={2}><div id={`${cellId}`} style={style} onClick={clickHandler}>{cellContent}</div></Col>;
+      const cellStyle = { background: cellColor, width: '4em', height: '4em', fontSize: 9 };
+      const cell = <button key={cellId} id={`${cellId}`} style={cellStyle} onClick={clickHandler}>
+        {cellContent}
+      </button>
       currentColumns.push(cell);
     }
 
-    board.push(<Row key={r} gutter={[4, 4]}>{currentColumns}</Row>)
+    const rowStyle = { display: 'flex', gap: 4, marginBottom: 4, minWidth: 'fit-content' }
+    board.push(<div key={r} style={rowStyle}>{currentColumns}</div>)
   }
 
   return board;
@@ -128,9 +131,9 @@ export const Board: FC<IBoardProps> = ({ players }) => {
   }
 
   return (
-    <div style={{ border: '1px solid #cccccc', padding: 16, width: 800, margin: 'auto', marginTop: 16 }}>
-      <div>{board}</div>
-      <div style={{ float: 'right' }}><Button onClick={handleEndTurnButtonClick}>End Turn</Button></div>
+    <div style={{ border: '1px solid #cccccc', padding: 16, }}>
+      {board}
+      <div style={{ margin: 'auto' }}><Button onClick={handleEndTurnButtonClick}>End Turn</Button></div>
     </div >
   );
 }
