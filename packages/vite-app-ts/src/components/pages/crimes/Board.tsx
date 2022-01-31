@@ -2,7 +2,7 @@ import { FC, useContext, useState } from 'react';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { useContractReader, useGasPrice } from 'eth-hooks';
-import { transactor, TTransactorFunc } from 'eth-components/functions';
+import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
 import { Button, Row, Col } from 'antd';
 import { CrimeLab } from '~~/generated/contract-types';
@@ -115,18 +115,9 @@ export const Board: FC<IBoardProps> = ({ players }) => {
   const map = generateMap(boardDims);
   const board = generateBoard(boardDims, handleCellClick, map, players);
 
-  const handleEndTurnButtonClick = async () => {
-    const result = tx?.(crimeLabContract?.endTurn(), (update: any) => {
-      logTransactionUpdate(update);
-    });
-    console.log("awaiting metamask/web3 confirm result...", result);
-    const unused = await result;
-  }
-
   return (
     <div style={{ border: '1px solid #cccccc', padding: 16, }}>
       {board}
-      <div style={{ margin: 'auto' }}><Button onClick={handleEndTurnButtonClick}>End Turn</Button></div>
     </div >
   );
 }

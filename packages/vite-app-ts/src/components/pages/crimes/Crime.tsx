@@ -6,6 +6,7 @@ import { BigNumber } from 'ethers';
 import { Board } from './Board';
 import { PlayingCards } from './PlayingCards';
 import { GameStatus } from './GameStatus';
+import { GameControls } from './GameControls';
 
 export interface ICrimeProps {
 }
@@ -66,6 +67,7 @@ export const Crime: FC<ICrimeProps> = () => {
         activePlayerIndex={activePlayerIndex}
         hand={sortedHand}
       />
+      <GameControls />
       <Board players={players} />
       <PlayingCards hand={sortedHand} />
     </div>
