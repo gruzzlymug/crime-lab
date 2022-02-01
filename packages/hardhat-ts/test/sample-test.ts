@@ -10,6 +10,6 @@ describe("CrimeLab", function () {
     expect(true).to.equal(true);
 
     await crimeLab.createGame("MURDER!");
-    expect(await crimeLab.getName(0)).to.equal("MURDER!");
+    expect(await crimeLab.getName(1)).to.equal("MURDER!");
   });
 });
