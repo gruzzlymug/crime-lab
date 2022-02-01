@@ -26,7 +26,7 @@ export const GameStatus: FC<IGameStatusProps> = ({ gameId, gameName, turn, playe
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-evenly', }}>
+      <div style={{ display: 'flex', justifyContent: 'space-evenly', flexWrap: 'wrap', marginTop: 18 }}>
         <div>
           <div>
             <Text type="secondary">crime:</Text>

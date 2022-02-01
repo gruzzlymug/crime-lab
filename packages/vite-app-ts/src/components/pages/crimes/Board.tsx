@@ -79,7 +79,7 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
         }
       }
 
-      const cellStyle = { background: cellColor, width: '4em', height: '4em', fontSize: 9 };
+      const cellStyle = { background: cellColor, minWidth: '3.6em', minHeight: '3.6em', fontSize: 9, padding: 2, flexGrow: '1' };
       const cell = <button key={cellId} id={`${cellId}`} style={cellStyle} onClick={clickHandler}>
         {cellContent}
       </button>
@@ -116,8 +116,10 @@ export const Board: FC<IBoardProps> = ({ players }) => {
   const board = generateBoard(boardDims, handleCellClick, map, players);
 
   return (
-    <div style={{ border: '1px solid #cccccc', padding: 16, }}>
-      {board}
+    <div style={{ border: '1px solid #cccccc', padding: 16, display: 'flex', justifyContent: 'center' }}>
+      <div>
+        {board}
+      </div>
     </div >
   );
 }

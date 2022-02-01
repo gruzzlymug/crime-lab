@@ -7,7 +7,9 @@ export interface IPlayingCardsProps {
 }
 
 const gridStyle: any = {
-  width: '20%',
+  width: '100%',
+  minWidth: 200,
+  maxWidth: 360,
   textAlign: 'center',
 };
 
@@ -51,7 +53,15 @@ export const PlayingCards: FC<IPlayingCardsProps> = ({ hand }) => {
 
   return (
     <Card
-      title="Playing Cards">
+      title="Playing Cards"
+      headStyle={{ borderBottom: 'none' }}
+      bodyStyle={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
       {playingCards.map(item => (
         <Card.Grid
           style={gridStyle}

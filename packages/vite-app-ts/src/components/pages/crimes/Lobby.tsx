@@ -1,5 +1,5 @@
 import { FC, useContext, useState } from 'react';
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import { useContractReader, useEventListener, useGasPrice } from 'eth-hooks';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
@@ -10,6 +10,7 @@ import { Address } from 'eth-components/ant';
 import { Players } from './Players'
 import { GameCreatedEvent } from '~~/generated/contract-types/CrimeLab';
 import { logTransactionUpdate } from '~~/components/common';
+import { BigNumber } from 'ethers';
 
 export interface ILobbyProps {
 }
@@ -35,8 +36,15 @@ export const Lobby: FC<ILobbyProps> = () => {
     const unused = await result;
   }
 
-  const handleJoinButtonClick = async () => {
+  const handleJoinAnyGameButtonClick = async () => {
     const result = tx?.(crimeLabContract?.joinAnyGame(), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+  const joinGame = (gameId: number) => async () => {
+    const result = tx?.(crimeLabContract?.joinGame(BigNumber.from(gameId)), (update: any) => {
       logTransactionUpdate(update);
     });
     console.log("awaiting metamask/web3 confirm result...", result);
@@ -45,29 +53,33 @@ export const Lobby: FC<ILobbyProps> = () => {
 
   return (
     <div style={{ margin: 8 }}>
-      {(gameId && (gameId.toNumber() > 0)) && <Redirect to={`/crime/${gameId}`} />}
+      {(gameId && (gameId.toNumber() > 0)) && <Redirect to={`/${gameId}`} />}
       <div>
-        <Input
-          placeholder={"Game name"}
-          onChange={e => { setNewGameName(e.target.value); }}
-        />
-        <Button
-          style={{ marginTop: 8 }}
-          onClick={handleCreateButtonClick}
-        >
-          Create new game
-        </Button>
+        <Input.Group compact style={{ marginTop: 24 }}>
+          <Input
+            placeholder={"Game name"}
+            onChange={e => { setNewGameName(e.target.value); }}
+            style={{ width: '50%' }}
+          />
+          <Button
+            type='primary'
+            onClick={handleCreateButtonClick}
+            disabled={!newGameName}
+          >
+            Create new game
+          </Button>
+        </Input.Group>
       </div>
       <div>
         <Button
-          style={{ marginTop: 8 }}
-          onClick={handleJoinButtonClick}
+          style={{ marginTop: 18, width: '30%', minWidth: 180 }}
+          onClick={handleJoinAnyGameButtonClick}
         >
-          Join Game
+          Join Random Game
         </Button>
       </div>
 
-      <div style={{ width: 600, margin: 'auto', marginTop: 32, paddingBottom: 32 }}>
+      <div style={{ margin: 'auto', marginTop: 32, paddingBottom: 32 }}>
         <h2>Events:</h2>
         <List
           bordered
@@ -78,11 +90,31 @@ export const Lobby: FC<ILobbyProps> = () => {
             const address = item.args[2];
 
             return (
-              <List.Item key={item.blockNumber + '_' + address + '_' + gameName}>
-                <Address address={address} ensProvider={undefined} fontSize={16} />
-                &nbsp;
-                =&gt;
-                &nbsp;{item.event}: {gameName} {gameId}
+              <List.Item
+                key={item.blockNumber + '_' + address + '_' + gameName}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: 8 }}>
+                  <div>
+                    <Address address={address} ensProvider={undefined} fontSize={16} />
+                  </div>
+                  <div>
+                    {`=>`}
+                  </div>
+                  <div>
+                    {item.event}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: 12, margin: 8 }}>
+                  <Link to={`/${gameId}`}>
+                    <Button>
+                      Go&nbsp;to&nbsp;game:&nbsp;{gameName}
+                    </Button>
+                  </Link>
+                  <Button onClick={joinGame(gameId)}>
+                    Join Game {gameId}
+                  </Button>
+                </div>
                 <Players gameId={gameId} />
               </List.Item>
             );

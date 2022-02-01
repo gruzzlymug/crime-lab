@@ -94,23 +94,14 @@ export const Main: FC = () => {
       <BrowserRouter>
         <MainPageMenu route={route} setRoute={setRoute} />
         <Switch>
-          <Route exact path="/">
+          <Route exact path="/yourcontract">
             <MainPageContracts scaffoldAppProviders={scaffoldAppProviders} />
           </Route>
           {/* you can add routes here like the below examples */}
           <Route exact path="/crimelab">
             <CrimeLab />
           </Route>
-          <Route path="/crimes">
-            <Lobby />
-          </Route>
-          <Route
-            exact
-            path="/crime/:gameId"
-            children={
-              <Crime />
-            }
-          ></Route>
+
           <Route path="/minimalgame">
             <MinimalGame />
           </Route>
@@ -140,11 +131,23 @@ export const Main: FC = () => {
             )}
           </Route>
           {/* Subgraph also disabled in MainPageMenu */}
-          {/* 
+          {/*
           <Route path="/subgraph">
             <Subgraph subgraphUri={subgraphUri} mainnetProvider={scaffoldAppProviders.mainnetAdaptor?.provider} />
-          </Route> 
+          </Route>
           */}
+
+          {/* wildcard route needs to be after named routes, and before the index */}
+          <Route
+            exact
+            path="/:gameId"
+            children={
+              <Crime />
+            }
+          />
+          <Route path="/">
+            <Lobby />
+          </Route>
         </Switch>
       </BrowserRouter>
     </div>

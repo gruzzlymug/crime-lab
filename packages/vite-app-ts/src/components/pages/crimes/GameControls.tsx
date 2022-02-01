@@ -62,7 +62,15 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
 
   return (
     <div style={{ border: "1px solid" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-evenly', }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-evenly',
+          flexWrap: 'wrap',
+          gap: 8,
+          padding: 8,
+        }}
+      >
         <Button disabled>
           Ready
         </Button>
