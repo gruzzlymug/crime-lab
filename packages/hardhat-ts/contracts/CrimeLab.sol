@@ -2,6 +2,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 import './BaseCase.sol';
+import './GameBoard.sol';
 import 'hardhat/console.sol';
 
 contract CrimeLab is BaseCase {
@@ -38,16 +39,54 @@ contract CrimeLab is BaseCase {
 
   Game[] public games;
 
+  GameBoard gameBoard;
+
   constructor() {
     // HACK create INVALID game as fake null
     Crime memory crime = Crime(INVALID, INVALID, INVALID);
     uint256 discarded = 0;
     uint256 turn = 0;
     games.push(Game('** INVALID **', crime, discarded, turn, false));
+
+    gameBoard = new GameBoard('Default Board');
+
+    GameBoard.Room memory study = GameBoard.Room(0, 0, 7, 4, 'Study');
+    gameBoard.addRoom(study);
+
+    GameBoard.Room memory lib = GameBoard.Room(0, 6, 7, 5, 'Library');
+    gameBoard.addRoom(lib);
+
+    GameBoard.Room memory billiard = GameBoard.Room(0, 12, 6, 5, 'Billiard Room');
+    gameBoard.addRoom(billiard);
+
+    GameBoard.Room memory conservatory = GameBoard.Room(0, 19, 6, 5, 'Conservatory');
+    gameBoard.addRoom(conservatory);
+
+    GameBoard.Room memory hall = GameBoard.Room(9, 0, 6, 7, 'Hall');
+    gameBoard.addRoom(hall);
+
+    // TODO consolidate, or otherwise clean up
+    GameBoard.Room memory ballroom = GameBoard.Room(8, 17, 8, 6, 'Ballroom');
+    gameBoard.addRoom(ballroom);
+    GameBoard.Room memory ballroom2 = GameBoard.Room(10, 23, 4, 2, 'Ballroom 2');
+    gameBoard.addRoom(ballroom2);
+
+    GameBoard.Room memory lounge = GameBoard.Room(17, 0, 7, 6, 'Lounge');
+    gameBoard.addRoom(lounge);
+
+    GameBoard.Room memory dining = GameBoard.Room(16, 9, 8, 7, 'Dining Room');
+    gameBoard.addRoom(dining);
+
+    GameBoard.Room memory kitchen = GameBoard.Room(18, 18, 6, 6, 'Kitchen');
+    gameBoard.addRoom(kitchen);
   }
 
   function getName(uint256 _gameId) external view returns (string memory) {
     return games[_gameId].name;
+  }
+
+  function getMap() external view returns (uint256[] memory) {
+    return gameBoard.getMap();
   }
 
   function getGameId() public view returns (uint256) {

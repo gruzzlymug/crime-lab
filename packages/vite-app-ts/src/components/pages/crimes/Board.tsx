@@ -8,8 +8,11 @@ import { Button, Row, Col } from 'antd';
 import { CrimeLab } from '~~/generated/contract-types';
 import { logTransactionUpdate } from '~~/components/common';
 import 'antd/dist/antd.css';
+// TODO maybe get rid of this (and use of BigNumber below)
+import { BigNumber } from 'ethers';
 
 export interface IBoardProps {
+  cells: BigNumber[],
   players: any[]
 }
 
@@ -18,33 +21,40 @@ interface Dimensions {
   cols: number
 };
 
-function generateMap(dims: Dimensions): Map<number, string[]> {
+function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]> {
+  const corridorColor = "#ddd";
   const startColor = "#d00";
-  const roomColor = "#d0d";
+  const roomColor = "#dd0";
   const wallColor = "#333";
 
-  let gameMap: Map<number, string[]> = new Map<number, string[]>([
-    [1, [startColor, "■"]],
-    [7, [startColor, "■"]],
-    [73, [startColor, "■"]],
-    [79, [startColor, "■"]],
-    [13, [roomColor, "LOUNGE"]],
-    [37, [roomColor, "LIBRARY"]],
-    [40, [roomColor, "KITCHEN"]],
-    [43, [roomColor, "STUDY"]],
-    [67, [roomColor, "BALLROOM"]],
-  ]);;
+  // TODO now that all cells are explicitly set, a map may be overkill
+  let gameMap: Map<number, string[]> = new Map<number, string[]>();
 
-  // add walls around the edge
-  for (let r = 0; r < dims.rows; ++r) {
-    const cellId = r * dims.rows;
-    gameMap.set(r * dims.rows, [wallColor, "X"]);
-    gameMap.set(r * dims.rows + dims.cols - 1, [wallColor, "X"]);
+  for (let i = 0; i < cells.length; ++i) {
+    let cellProps;
+    // TODO get rid of toNumber here
+    switch (cells[i].toNumber()) {
+      case 0:
+        cellProps = [corridorColor, "□"];
+        break;
+      case 1:
+        cellProps = [wallColor, "X"];
+        break;
+      case 2:
+        cellProps = [roomColor, "R"];
+        break;
+      default:
+        cellProps = ["#f00", "X"];
+    }
+    gameMap.set(i, cellProps);
   }
-  for (let c = 2; c < dims.cols - 2; ++c) {
-    gameMap.set(c, [wallColor, "X"]);
-    gameMap.set(c + (dims.cols * (dims.rows - 1)), [wallColor, "X"]);
-  }
+
+  gameMap.set(16, [startColor, "■"]);
+  gameMap.set(120, [startColor, "■"]);
+  gameMap.set(191, [startColor, "■"]);
+  gameMap.set(432, [startColor, "■"]);
+  gameMap.set(585, [startColor, "■"]);
+  gameMap.set(590, [startColor, "■"]);
 
   return gameMap;
 }
@@ -57,7 +67,7 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
       let cellColor = "#ddd";
       let cellContent = "□";
 
-      const cellId = r * dims.rows + c;
+      const cellId = r * dims.cols + c;
       const props = gameMap.get(cellId);
 
       if (props != undefined) {
@@ -79,7 +89,8 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
         }
       }
 
-      const cellStyle = { background: cellColor, minWidth: '3.6em', minHeight: '3.6em', fontSize: 9, padding: 2, flexGrow: '1' };
+      const cellSize = '2.0em';
+      const cellStyle = { background: cellColor, width: cellSize, height: cellSize, fontSize: 9, padding: 2 };
       const cell = <button key={cellId} id={`${cellId}`} style={cellStyle} onClick={clickHandler}>
         {cellContent}
       </button>
@@ -93,7 +104,7 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
   return board;
 }
 
-export const Board: FC<IBoardProps> = ({ players }) => {
+export const Board: FC<IBoardProps> = ({ cells, players }) => {
   const ethersContext = useEthersContext();
 
   const ethComponentsSettings = useContext(EthComponentsSettingsContext);
@@ -111,8 +122,8 @@ export const Board: FC<IBoardProps> = ({ players }) => {
     const unused = await result;
   }
 
-  const boardDims: Dimensions = { rows: 9, cols: 9 };
-  const map = generateMap(boardDims);
+  const boardDims: Dimensions = { rows: 25, cols: 24 };
+  const map = generateMap(boardDims, cells);
   const board = generateBoard(boardDims, handleCellClick, map, players);
 
   return (

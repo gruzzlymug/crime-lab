@@ -30,6 +30,8 @@ export const Crime: FC<ICrimeProps> = () => {
   const [hand] = useContractReader(crimeLabContract, crimeLabContract?.getHand, [], crimeLabContract?.filters.CardDiscarded());
   const [discardPile] = useContractReader(crimeLabContract, crimeLabContract?.getDiscardPile, [], crimeLabContract?.filters.CardDiscarded());
 
+  const [map] = useContractReader(crimeLabContract, crimeLabContract?.getMap, []);
+
   // this is updated via a sideEffect below.
   const [players, setPlayers] = useState<PlayerProps[]>([]);
 
@@ -70,7 +72,10 @@ export const Crime: FC<ICrimeProps> = () => {
       <GameControls
         gameId={gameId?.toNumber() || 0}
       />
-      <Board players={players} />
+      <Board
+        cells={map || []}
+        players={players}
+      />
       <PlayingCards hand={sortedHand} />
     </div>
   )
