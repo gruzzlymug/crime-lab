@@ -59,8 +59,11 @@ contract CrimeLab is BaseCase {
     GameBoard.Room memory billiard = GameBoard.Room(0, 12, 6, 5, 'Billiard Room');
     gameBoard.addRoom(billiard);
 
-    GameBoard.Room memory conservatory = GameBoard.Room(0, 19, 6, 5, 'Conservatory');
+    // TODO consolidate, or otherwise clean up
+    GameBoard.Room memory conservatory = GameBoard.Room(1, 19, 4, 1, 'Conservatory');
     gameBoard.addRoom(conservatory);
+    GameBoard.Room memory conservatory2 = GameBoard.Room(0, 20, 6, 4, 'Conservatory 2');
+    gameBoard.addRoom(conservatory2);
 
     GameBoard.Room memory hall = GameBoard.Room(9, 0, 6, 7, 'Hall');
     gameBoard.addRoom(hall);

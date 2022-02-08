@@ -25,6 +25,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
   const corridorColor = "#ddd";
   const startColor = "#d00";
   const roomColor = "#dd0";
+  const doorColor = "#bb0";
   const wallColor = "#333";
 
   // TODO now that all cells are explicitly set, a map may be overkill
@@ -35,13 +36,13 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
     // TODO get rid of toNumber here
     switch (cells[i].toNumber()) {
       case 0:
-        cellProps = [corridorColor, "□"];
+        cellProps = [corridorColor, ""];
         break;
       case 1:
-        cellProps = [wallColor, "X"];
+        cellProps = [wallColor, ""];
         break;
       case 2:
-        cellProps = [roomColor, "R"];
+        cellProps = [roomColor, ""];
         break;
       default:
         cellProps = ["#f00", "X"];
@@ -55,6 +56,27 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
   gameMap.set(432, [startColor, "■"]);
   gameMap.set(585, [startColor, "■"]);
   gameMap.set(590, [startColor, "■"]);
+
+  // study
+  gameMap.set(78, [doorColor, "⇅"]);
+  // library
+  gameMap.set(198, [doorColor, "⇄"]);
+  gameMap.set(243, [doorColor, "⇅"]);
+  // billiard room
+  gameMap.set(289, [doorColor, "⇅"]);
+  gameMap.set(365, [doorColor, "⇄"]);
+  // conservatory
+  gameMap.set(460, [doorColor, "⇄"]);
+
+  // hall
+  gameMap.set(105, [doorColor, "⇒"]);
+  gameMap.set(155, [doorColor, "⇑"]);
+  gameMap.set(156, [doorColor, "⇑"]);
+  // ballroom
+  gameMap.set(417, [doorColor, "⇓"]);
+  gameMap.set(422, [doorColor, "⇓"]);
+  gameMap.set(464, [doorColor, "⇒"]);
+  gameMap.set(471, [doorColor, "⇐"]);
 
   return gameMap;
 }
