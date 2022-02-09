@@ -47,18 +47,14 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
       case 3:
         cellProps = [doorColor, ""];
         break;
+      case 4:
+        cellProps = [startColor, "■"];
+        break;
       default:
         cellProps = ["#f00", "X"];
     }
     gameMap.set(i, cellProps);
   }
-
-  gameMap.set(16, [startColor, "■"]);
-  gameMap.set(120, [startColor, "■"]);
-  gameMap.set(191, [startColor, "■"]);
-  gameMap.set(432, [startColor, "■"]);
-  gameMap.set(585, [startColor, "■"]);
-  gameMap.set(590, [startColor, "■"]);
 
   return gameMap;
 }

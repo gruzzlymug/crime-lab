@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+// NOTE for debugging only
+import 'hardhat/console.sol';
+
 // NOTE
 // Consider storing a board as an N by M matrix of uint256
 // values only. Any operation will modify this map instead
 // of storing info to create the map on demand. In other words,
-// move logic from getMap to addRoom, etc.
+// move logic from getMap to addRoom, addStarts, etc.
+// Functions could take arbitrarily long arrays.
 contract GameBoard {
   struct Room {
     uint256 x;
@@ -16,14 +20,19 @@ contract GameBoard {
     string name;
   }
 
-  string public name;
-  Room[] public rooms;
+  string name;
+  uint256[8] starts;
+  Room[] rooms;
 
   uint256 constant rows = 25;
   uint256 constant cols = 24;
 
   constructor(string memory _name) {
     name = _name;
+  }
+
+  function addStarts(uint256[8] memory _starts) public {
+    starts = _starts;
   }
 
   function addRoom(Room memory _room) public {
@@ -36,8 +45,19 @@ contract GameBoard {
   }
 
   function getMap() public view returns (uint256[] memory) {
+    // NOTE ¡magic number!
+    uint256 NV = 65535;
+
     uint256 count = rows * cols;
     uint256[] memory map = new uint256[](count);
+    // starts
+    for (uint256 i = 0; i < starts.length; ++i) {
+      uint256 cellId = starts[i];
+      if (cellId != NV) {
+        map[cellId] = 4;
+      }
+    }
+    // rooms
     for (uint256 i = 0; i < rooms.length; ++i) {
       // floorplan
       uint256 cellId = rooms[i].y * cols + rooms[i].x;
@@ -49,7 +69,7 @@ contract GameBoard {
       // doors
       for (uint256 j = 0; j < 4; ++j) {
         uint256 door = rooms[i].doors[j];
-        if (door != 65535) {
+        if (door != NV) {
           uint256 doorX = door % rooms[i].width;
           uint256 doorY = door / rooms[i].width;
           map[cellId + doorY * cols + doorX] = 3;
