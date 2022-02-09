@@ -49,38 +49,39 @@ contract CrimeLab is BaseCase {
     games.push(Game('** INVALID **', crime, discarded, turn, false));
 
     gameBoard = new GameBoard('Default Board');
+    uint256 ND = 65535;
 
-    GameBoard.Room memory study = GameBoard.Room(0, 0, 7, 4, 'Study');
+    GameBoard.Room memory study = GameBoard.Room(0, 0, 7, 4, [27, ND, ND, ND], 'Study');
     gameBoard.addRoom(study);
 
-    GameBoard.Room memory lib = GameBoard.Room(0, 6, 7, 5, 'Library');
+    GameBoard.Room memory lib = GameBoard.Room(0, 6, 7, 5, [20, 31, ND, ND], 'Library');
     gameBoard.addRoom(lib);
 
-    GameBoard.Room memory billiard = GameBoard.Room(0, 12, 6, 5, 'Billiard Room');
+    GameBoard.Room memory billiard = GameBoard.Room(0, 12, 6, 5, [1, 23, ND, ND], 'Billiard Room');
     gameBoard.addRoom(billiard);
 
     // TODO consolidate, or otherwise clean up
-    GameBoard.Room memory conservatory = GameBoard.Room(1, 19, 4, 1, 'Conservatory');
+    GameBoard.Room memory conservatory = GameBoard.Room(1, 19, 4, 1, [3, ND, ND, ND], 'Conservatory');
     gameBoard.addRoom(conservatory);
-    GameBoard.Room memory conservatory2 = GameBoard.Room(0, 20, 6, 4, 'Conservatory 2');
+    GameBoard.Room memory conservatory2 = GameBoard.Room(0, 20, 6, 4, [ND, ND, ND, ND], 'Conservatory 2');
     gameBoard.addRoom(conservatory2);
 
-    GameBoard.Room memory hall = GameBoard.Room(9, 0, 6, 7, 'Hall');
+    GameBoard.Room memory hall = GameBoard.Room(9, 0, 6, 7, [24, 38, 39, ND], 'Hall');
     gameBoard.addRoom(hall);
 
     // TODO consolidate, or otherwise clean up
-    GameBoard.Room memory ballroom = GameBoard.Room(8, 17, 8, 6, 'Ballroom');
+    GameBoard.Room memory ballroom = GameBoard.Room(8, 17, 8, 6, [uint256(1), 6, 16, 23], 'Ballroom');
     gameBoard.addRoom(ballroom);
-    GameBoard.Room memory ballroom2 = GameBoard.Room(10, 23, 4, 2, 'Ballroom 2');
+    GameBoard.Room memory ballroom2 = GameBoard.Room(10, 23, 4, 2, [ND, ND, ND, ND], 'Ballroom 2');
     gameBoard.addRoom(ballroom2);
 
-    GameBoard.Room memory lounge = GameBoard.Room(17, 0, 7, 6, 'Lounge');
+    GameBoard.Room memory lounge = GameBoard.Room(17, 0, 7, 6, [35, ND, ND, ND], 'Lounge');
     gameBoard.addRoom(lounge);
 
-    GameBoard.Room memory dining = GameBoard.Room(16, 9, 8, 7, 'Dining Room');
+    GameBoard.Room memory dining = GameBoard.Room(16, 9, 8, 7, [1, 24, ND, ND], 'Dining Room');
     gameBoard.addRoom(dining);
 
-    GameBoard.Room memory kitchen = GameBoard.Room(18, 18, 6, 6, 'Kitchen');
+    GameBoard.Room memory kitchen = GameBoard.Room(18, 18, 6, 6, [1, ND, ND, ND], 'Kitchen');
     gameBoard.addRoom(kitchen);
   }
 
