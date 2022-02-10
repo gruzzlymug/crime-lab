@@ -13,6 +13,9 @@ contract CrimeLab is BaseCase {
   event PlayerMoved(uint256 gameId, address player);
   event TurnTaken(uint256 gameId);
 
+  // When a uint is not meant to be set to anything, use this
+  uint256 constant NO_VALUE = 65535;
+
   struct Player {
     address id;
     bool ready;
@@ -96,7 +99,23 @@ contract CrimeLab is BaseCase {
   }
 
   function getMap() external view returns (uint256[] memory) {
-    return gameBoard.getMap();
+    uint256[] memory map = gameBoard.getMap();
+
+    // add players to map
+    // TODO ¡magic number alert! 'shared' with frontend
+    // NOTE using bits to indicate player locations, for now
+    uint256 playerBase = 256;
+    uint256 gameIndex = player_to_game[msg.sender];
+    uint256 numPlayers = getNumPlayers(gameIndex);
+    for (uint256 i = 0; i < numPlayers; ++i) {
+      uint256 pos = game_to_players[gameIndex][i].position;
+      if (pos != NO_VALUE) {
+        map[pos] += playerBase;
+        playerBase *= 2;
+      }
+    }
+
+    return map;
   }
 
   function getGameId() public view returns (uint256) {
@@ -162,9 +181,6 @@ contract CrimeLab is BaseCase {
 
     bool playerReady = true;
 
-    uint256[4] memory startingPositions = [uint256(1), 7, 73, 79];
-    uint256 position = startingPositions[numPlayers];
-
     player_to_game[_player] = _gameId;
     // attempt to fill any empty slots first
     uint256 numSlots = game_to_players[_gameId].length;
@@ -173,13 +189,13 @@ contract CrimeLab is BaseCase {
       if (game_to_players[_gameId][i].id == address(0)) {
         game_to_players[_gameId][i].id = _player;
         game_to_players[_gameId][i].ready = playerReady;
-        game_to_players[_gameId][i].position = position;
+        game_to_players[_gameId][i].position = NO_VALUE;
         break;
       }
     }
     // no empty slots...
     if (i == numSlots) {
-      game_to_players[_gameId].push(Player(_player, playerReady, position));
+      game_to_players[_gameId].push(Player(_player, playerReady, NO_VALUE));
     }
   }
 
@@ -201,33 +217,10 @@ contract CrimeLab is BaseCase {
     }
   }
 
+  // TODO for info on random numbers see https://ethereum.stackexchange.com/questions/54375/solidity-choosing-5-random-values-of-an-array
   function startGame(uint256 _gameId) external {
     // shuffle cards with deterministic lookup
-    // TODO for info on random numbers see https://ethereum.stackexchange.com/questions/54375/solidity-choosing-5-random-values-of-an-array
-    uint256[21] memory lookup = [
-      // explicit type to avoid compile error
-      uint256(0),
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      17,
-      18,
-      19,
-      20
-    ];
+    uint256[21] memory lookup = [uint256(0), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
     for (uint256 i = 0; i < deck.length; ++i) {
       uint256 id0 = (7 + 2 * i) % deck.length;
       uint256 id1 = (13 + i) % deck.length;
@@ -238,7 +231,7 @@ contract CrimeLab is BaseCase {
 
     // deal cards to players
     uint256 discarded = games[_gameId].discarded;
-    uint256 numPlayers = game_to_players[_gameId].length;
+    uint256 numPlayers = getNumPlayers(_gameId);
     uint256 playerIndex = 0;
     for (uint256 i = 0; i < deck.length; ++i) {
       uint256 card = deck[lookup[i]];
@@ -252,6 +245,15 @@ contract CrimeLab is BaseCase {
 
         playerIndex = (playerIndex + 1) % numPlayers;
       }
+    }
+
+    // place players
+    uint256[8] memory starts = gameBoard.getStarts();
+    for (uint256 i = 0; i < numPlayers; ++i) {
+      require(starts[i] != NO_VALUE, 'No start position available');
+      game_to_players[_gameId][i].position = starts[i];
+
+      emit PlayerMoved(_gameId, game_to_players[_gameId][i].id);
     }
 
     // TODO this feels a bit janky
@@ -282,6 +284,7 @@ contract CrimeLab is BaseCase {
     return output;
   }
 
+  // TODO ensure move is valid
   function setPlayerPosition(uint256 _position) public {
     uint256 gameIndex = player_to_game[msg.sender];
     require(gameIndex != 0, 'Player not in game');
@@ -376,10 +379,8 @@ contract CrimeLab is BaseCase {
       uint256 numPlayers = getNumPlayers(gameId);
       for (uint256 i = 0; i < numPlayers; i++) {
         if (game_to_players[gameId][i].id == msg.sender) {
-          uint256 savedPosition = game_to_players[gameId][i].position;
           delete game_to_players[gameId][i];
           game_to_players[gameId][i] = game_to_players[gameId][numPlayers - 1];
-          game_to_players[gameId][i].position = savedPosition;
           break;
         }
       }

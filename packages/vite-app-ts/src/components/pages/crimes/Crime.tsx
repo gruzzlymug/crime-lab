@@ -30,8 +30,10 @@ export const Crime: FC<ICrimeProps> = () => {
   const [hand] = useContractReader(crimeLabContract, crimeLabContract?.getHand, [], crimeLabContract?.filters.CardDiscarded());
   const [discardPile] = useContractReader(crimeLabContract, crimeLabContract?.getDiscardPile, [], crimeLabContract?.filters.CardDiscarded());
 
-  const [map] = useContractReader(crimeLabContract, crimeLabContract?.getMap, []);
+  // TODO may want multiple events to trigger this...refine
+  const [map] = useContractReader(crimeLabContract, crimeLabContract?.getMap, [], crimeLabContract?.filters.PlayerMoved());
 
+  // NOTE players array not needed for map display anymore
   // this is updated via a sideEffect below.
   const [players, setPlayers] = useState<PlayerProps[]>([]);
 
@@ -74,7 +76,6 @@ export const Crime: FC<ICrimeProps> = () => {
       />
       <Board
         cells={map || []}
-        players={players}
       />
       <PlayingCards hand={sortedHand} />
     </div>

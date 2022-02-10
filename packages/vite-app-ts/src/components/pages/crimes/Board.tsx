@@ -13,7 +13,6 @@ import { BigNumber } from 'ethers';
 
 export interface IBoardProps {
   cells: BigNumber[],
-  players: any[]
 }
 
 interface Dimensions {
@@ -34,9 +33,33 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
   for (let i = 0; i < cells.length; ++i) {
     let cellProps;
     // TODO get rid of toNumber here
-    switch (cells[i].toNumber()) {
+    const contents = cells[i].toNumber();
+    const terrain = contents & 0xff;
+    const player = (contents & 0xff00) >> 8;
+
+    let playerIcon = undefined;
+    if (player > 0) {
+      switch (player) {
+        case 1:
+          playerIcon = "🗿";
+          break;
+        case 2:
+          playerIcon = "🕵️";
+          break;
+        case 4:
+          playerIcon = "👻";
+          break;
+        case 8:
+          playerIcon = "👮";
+          break;
+        default:
+          playerIcon = "😳";
+      }
+    }
+
+    switch (terrain) {
       case 0:
-        cellProps = [corridorColor, ""];
+        cellProps = [corridorColor, playerIcon ? playerIcon : ""];
         break;
       case 1:
         cellProps = [wallColor, ""];
@@ -48,7 +71,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
         cellProps = [doorColor, ""];
         break;
       case 4:
-        cellProps = [startColor, "■"];
+        cellProps = [startColor, playerIcon ? playerIcon : "■"];
         break;
       default:
         cellProps = ["#f00", "X"];
@@ -59,7 +82,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
   return gameMap;
 }
 
-function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number, string[]>, players: any[]): Array<JSX.Element> {
+function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number, string[]>): Array<JSX.Element> {
   let board: Array<JSX.Element> = [];
   for (let r: number = 0; r < dims.rows; r++) {
     let currentColumns: Array<JSX.Element> = [];
@@ -73,20 +96,6 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
       if (props != undefined) {
         cellColor = props[0];
         cellContent = props[1];
-      }
-
-      // TODO refine
-      const playerIcons: Map<string, string> = new Map([
-        ["0", "🗿"],
-        ["1", "🕵️"],
-        ["2", "🕵️"],
-        ["3", "👮"],
-      ]);
-      for (let i in players) {
-        if (cellId === players[i]['position'].toNumber()) {
-          cellContent = playerIcons.get(i) || "--";
-          break;
-        }
       }
 
       const cellSize = '2.0em';
@@ -104,7 +113,7 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number,
   return board;
 }
 
-export const Board: FC<IBoardProps> = ({ cells, players }) => {
+export const Board: FC<IBoardProps> = ({ cells }) => {
   const ethersContext = useEthersContext();
 
   const ethComponentsSettings = useContext(EthComponentsSettingsContext);
@@ -124,7 +133,7 @@ export const Board: FC<IBoardProps> = ({ cells, players }) => {
 
   const boardDims: Dimensions = { rows: 25, cols: 24 };
   const map = generateMap(boardDims, cells);
-  const board = generateBoard(boardDims, handleCellClick, map, players);
+  const board = generateBoard(boardDims, handleCellClick, map);
 
   return (
     <div style={{ border: '1px solid #cccccc', padding: 16, display: 'flex', justifyContent: 'center' }}>

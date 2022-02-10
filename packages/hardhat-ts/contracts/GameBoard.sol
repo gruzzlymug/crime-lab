@@ -35,6 +35,10 @@ contract GameBoard {
     starts = _starts;
   }
 
+  function getStarts() public view returns (uint256[8] memory) {
+    return starts;
+  }
+
   function addRoom(Room memory _room) public {
     rooms.push(_room);
   }
