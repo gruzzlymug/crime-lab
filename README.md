@@ -48,3 +48,23 @@ Everything you need to build on Ethereum! 🚀
 💼 Edit your deployment scripts in `packages/hardhat-ts/deploy`
 
 📱 Open http://localhost:3000 to see the app
+
+## Installing Dependencies
+
+Node Version Manager (nvm)
+```bash
+touch ~/.bash_profile
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+exec $SHELL
+source ~/.bash_profile
+nvm --version
+```
+Node Version 14
+```bash
+nvm install 14
+```
+Yarn
+```bash
+curl -o- -L https://yarnpkg.com/install.sh | bash
+exec $SHELL
+```
