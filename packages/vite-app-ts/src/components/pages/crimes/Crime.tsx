@@ -29,6 +29,7 @@ export const Crime: FC<ICrimeProps> = () => {
   const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
   const [hand] = useContractReader(crimeLabContract, crimeLabContract?.getHand, [], crimeLabContract?.filters.CardDiscarded());
   const [discardPile] = useContractReader(crimeLabContract, crimeLabContract?.getDiscardPile, [], crimeLabContract?.filters.CardDiscarded());
+  const [dieRoll] = useContractReader(crimeLabContract, crimeLabContract?.getDieRoll, [], crimeLabContract?.filters.DieRolled());
 
   // TODO may want multiple events to trigger this...refine
   const [map] = useContractReader(crimeLabContract, crimeLabContract?.getMap, [], crimeLabContract?.filters.PlayerMoved());
@@ -70,6 +71,7 @@ export const Crime: FC<ICrimeProps> = () => {
         players={players}
         activePlayerIndex={activePlayerIndex}
         hand={sortedHand}
+        dieRoll={dieRoll?.toNumber() || 0}
       />
       <GameControls
         gameId={gameId?.toNumber() || 0}

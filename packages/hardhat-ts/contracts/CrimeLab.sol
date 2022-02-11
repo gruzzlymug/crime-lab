@@ -8,6 +8,7 @@ import 'hardhat/console.sol';
 contract CrimeLab is BaseCase {
   event GameCreated(uint256 gameId, string name, address creator);
   event PlayerJoined(uint256 gameId, address player);
+  event DieRolled(uint256 gameId, address player, uint256 roll);
   event SuggestionMade(uint256 gameId, address player);
   event SuggestionData(uint256 gameId, uint256 suspect, uint256 weapon, uint256 room);
   event PlayerMoved(uint256 gameId, address player);
@@ -129,6 +130,14 @@ contract CrimeLab is BaseCase {
       --numPlayers;
     }
     return numPlayers;
+  }
+
+  // TODO placeholder logic
+  function getDieRoll() public view returns (uint256) {
+    uint256 gameIndex = player_to_game[msg.sender];
+    require(gameIndex != 0, 'Player not in game');
+
+    return 6;
   }
 
   function getNumCards(address _player) public view returns (uint256) {
@@ -317,6 +326,9 @@ contract CrimeLab is BaseCase {
     game.moved = false;
 
     emit TurnTaken(gameIndex);
+
+    // TODO placeholder, for triggering UI update
+    emit DieRolled(gameIndex, address(0), 0);
   }
 
   function makeSuggestion(uint256 _gameId, Crime memory _crime) public returns (bool) {

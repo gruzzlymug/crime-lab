@@ -18,10 +18,11 @@ export interface IGameStatusProps {
   turn: number,
   players: PlayerProps[],
   activePlayerIndex: number,
-  hand: Array<number>
+  hand: Array<number>,
+  dieRoll: number
 }
 
-export const GameStatus: FC<IGameStatusProps> = ({ gameId, gameName, turn, players, activePlayerIndex, hand }) => {
+export const GameStatus: FC<IGameStatusProps> = ({ gameId, gameName, turn, players, activePlayerIndex, hand, dieRoll }) => {
   const numPlayers = players.length;
 
   return (
@@ -36,6 +37,7 @@ export const GameStatus: FC<IGameStatusProps> = ({ gameId, gameName, turn, playe
         </div>
         <div>
           <Statistic title="turn" value={turn} precision={0} />
+          <Statistic title="die roll" value={dieRoll} precision={0} />
         </div>
         <div>
           <Statistic title="players" value={numPlayers} precision={0} />
