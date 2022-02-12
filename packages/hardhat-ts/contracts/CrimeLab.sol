@@ -108,16 +108,14 @@ contract CrimeLab is BaseCase {
     uint256[] memory map = gameBoard.getMap();
 
     // add players to map
-    // TODO ¡magic number alert! 'shared' with frontend
-    // NOTE using bits to indicate player locations, for now
-    uint256 playerBase = 256;
     uint256 gameIndex = player_to_game[msg.sender];
     uint256 numPlayers = getNumPlayers(gameIndex);
     for (uint256 i = 0; i < numPlayers; ++i) {
       uint256 pos = game_to_players[gameIndex][i].position;
+      // TODO ¡magic number alert! 'shared' with frontend
       if (pos != NO_VALUE) {
-        map[pos] += playerBase;
-        playerBase *= 2;
+        // combine type and id
+        map[pos] += ((i << 4) | 1) << 32;
       }
     }
 

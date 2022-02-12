@@ -62,8 +62,9 @@ export const PlayingCards: FC<IPlayingCardsProps> = ({ hand }) => {
         alignItems: 'center',
       }}
     >
-      {playingCards.map(item => (
+      {playingCards.map((item, index) => (
         <Card.Grid
+          key={index}
           style={gridStyle}
         >
           <Meta

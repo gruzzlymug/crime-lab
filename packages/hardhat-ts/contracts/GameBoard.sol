@@ -55,6 +55,7 @@ contract GameBoard {
     return (cols, rows);
   }
 
+  // TODO document bit field here
   function getMap() public view returns (uint256[] memory) {
     uint256 count = rows * cols;
     uint256[] memory map = new uint256[](count);
@@ -67,11 +68,14 @@ contract GameBoard {
     }
     // rooms
     for (uint256 i = 0; i < rooms.length; ++i) {
+      // encode room id
+      require(rooms[i].id < 16, 'Room ID too large to encode');
+      uint256 encodedRoomId = rooms[i].id << 4;
       // floorplan
       uint256 cellId = rooms[i].y * cols + rooms[i].x;
       for (uint256 j = 0; j < rooms[i].height; ++j) {
         for (uint256 k = 0; k < rooms[i].width; ++k) {
-          map[cellId + j * cols + k] = CELL_ROOM;
+          map[cellId + j * cols + k] = encodedRoomId | CELL_ROOM;
         }
       }
       // doors
@@ -80,21 +84,10 @@ contract GameBoard {
         if (door != NV) {
           uint256 doorX = door % rooms[i].width;
           uint256 doorY = door / rooms[i].width;
-          map[cellId + doorY * cols + doorX] = CELL_DOOR;
+          map[cellId + doorY * cols + doorX] = encodedRoomId | CELL_DOOR;
         }
       }
     }
-
-    // add walls around the edge
-    // for (uint256 r = 0; r < rows; ++r) {
-    //   uint256 cellId = r * rows;
-    //   map[cellId] = 1;
-    //   map[cellId + cols - 1] = 1;
-    // }
-    // for (uint256 c = 2; c < cols - 2; ++c) {
-    //   map[c] = 1;
-    //   map[c + (cols * (rows - 1))] = 1;
-    // }
 
     return map;
   }

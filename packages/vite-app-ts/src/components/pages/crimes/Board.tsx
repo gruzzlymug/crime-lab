@@ -31,52 +31,46 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
   let gameMap: Map<number, string[]> = new Map<number, string[]>();
 
   for (let i = 0; i < cells.length; ++i) {
-    let cellProps;
-    // TODO get rid of toNumber here
-    const contents = cells[i].toNumber();
-    const terrain = contents & 0xff;
-    const player = (contents & 0xff00) >> 8;
+    // NOTE toNumber apparently means a 32 bit number
+    const mapBits = cells[i].toNumber();
+    const gameBits = cells[i].shr(32).toNumber();
 
-    let playerIcon = undefined;
-    if (player > 0) {
-      switch (player) {
-        case 1:
-          playerIcon = "🗿";
-          break;
-        case 2:
-          playerIcon = "🕵️";
-          break;
-        case 4:
-          playerIcon = "👻";
-          break;
-        case 8:
-          playerIcon = "👮";
-          break;
-        default:
-          playerIcon = "😳";
-      }
-    }
+    let cellColor = "#f00";
+    let cellOccupant = "";
 
-    switch (terrain) {
+    const occupantType = gameBits & 0x0f;
+    switch (occupantType) {
       case 0:
-        cellProps = [corridorColor, playerIcon ? playerIcon : ""];
+        // nothing
         break;
       case 1:
-        cellProps = [wallColor, ""];
+        // TODO constrain player id to valid range
+        const playerId = (gameBits & 0xf0) >> 4;
+        cellOccupant = ["🗿", "🕵️", "👻", "👮"][playerId];
+        break;
+    }
+
+    const cellType = mapBits & 0x0f;
+    // const cellGroupId = (mapBits & 0xf0) >> 4;
+    switch (cellType) {
+      case 0:
+        cellColor = corridorColor;
+        break;
+      case 1:
+        cellColor = wallColor;
         break;
       case 2:
-        cellProps = [roomColor, ""];
+        cellColor = roomColor;
         break;
       case 3:
-        cellProps = [doorColor, ""];
+        cellColor = doorColor;
         break;
       case 4:
-        cellProps = [startColor, playerIcon ? playerIcon : "■"];
+        cellColor = startColor;
         break;
-      default:
-        cellProps = ["#f00", "X"];
     }
-    gameMap.set(i, cellProps);
+
+    gameMap.set(i, [cellColor, cellOccupant]);
   }
 
   return gameMap;
