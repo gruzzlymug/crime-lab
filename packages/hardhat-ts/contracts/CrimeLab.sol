@@ -16,6 +16,8 @@ contract CrimeLab is BaseCase {
 
   // When a uint is not meant to be set to anything, use this
   uint256 constant NO_VALUE = 65535;
+  // TODO ¡replace hard-coded (& shared with GameBoard) magic number!
+  uint256 constant NV = 65535;
 
   struct Player {
     address id;
@@ -55,44 +57,47 @@ contract CrimeLab is BaseCase {
     createBoard();
   }
 
-  // TODO improve multi-part room creation
+  // Room format: id, x pos, y pos, width, height, [doors]
   function createBoard() internal {
     gameBoard = new GameBoard('Default Board');
-    // TODO ¡replace hard-coded (& shared with GameBoard) magic number!
-    uint256 NV = 65535;
 
     gameBoard.addStarts([uint256(16), 120, 191, 432, 585, 590, NV, NV]);
 
-    GameBoard.Room memory study = GameBoard.Room(0, 0, 7, 4, [27, NV, NV, NV], 'Study');
-    gameBoard.addRoom(study);
+    // TODO move IDs to constants
+    // study
+    gameBoard.addRoom(GameBoard.Room(0, 0, 0, 6, 1, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(0, 0, 1, 7, 3, [20, NV, NV, NV]));
 
-    GameBoard.Room memory lib = GameBoard.Room(0, 6, 7, 5, [20, 31, NV, NV], 'Library');
-    gameBoard.addRoom(lib);
+    // library
+    gameBoard.addRoom(GameBoard.Room(1, 1, 6, 5, 1, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(1, 0, 7, 7, 3, [13, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(1, 1, 10, 5, 1, [2, NV, NV, NV]));
 
-    GameBoard.Room memory billiard = GameBoard.Room(0, 12, 6, 5, [1, 23, NV, NV], 'Billiard Room');
-    gameBoard.addRoom(billiard);
+    // billiard
+    gameBoard.addRoom(GameBoard.Room(2, 0, 12, 6, 5, [1, 23, NV, NV]));
 
-    GameBoard.Room memory conservatory = GameBoard.Room(1, 19, 4, 1, [3, NV, NV, NV], 'Conservatory');
-    gameBoard.addRoom(conservatory);
-    GameBoard.Room memory conservatory2 = GameBoard.Room(0, 20, 6, 4, [NV, NV, NV, NV], 'Conservatory 2');
-    gameBoard.addRoom(conservatory2);
+    // conservatory
+    gameBoard.addRoom(GameBoard.Room(3, 1, 19, 4, 1, [3, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(3, 0, 20, 6, 4, [NV, NV, NV, NV]));
 
-    GameBoard.Room memory hall = GameBoard.Room(9, 0, 6, 7, [24, 38, 39, NV], 'Hall');
-    gameBoard.addRoom(hall);
+    // hall
+    gameBoard.addRoom(GameBoard.Room(4, 9, 0, 6, 7, [24, 38, 39, NV]));
 
-    GameBoard.Room memory ballroom = GameBoard.Room(8, 17, 8, 6, [uint256(1), 6, 16, 23], 'Ballroom');
-    gameBoard.addRoom(ballroom);
-    GameBoard.Room memory ballroom2 = GameBoard.Room(10, 23, 4, 2, [NV, NV, NV, NV], 'Ballroom 2');
-    gameBoard.addRoom(ballroom2);
+    // ballroom
+    gameBoard.addRoom(GameBoard.Room(5, 8, 17, 8, 6, [uint256(1), 6, 16, 23]));
+    gameBoard.addRoom(GameBoard.Room(5, 10, 23, 4, 2, [NV, NV, NV, NV]));
 
-    GameBoard.Room memory lounge = GameBoard.Room(17, 0, 7, 6, [35, NV, NV, NV], 'Lounge');
-    gameBoard.addRoom(lounge);
+    // lounge
+    gameBoard.addRoom(GameBoard.Room(6, 18, 0, 6, 1, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(6, 17, 1, 7, 5, [28, NV, NV, NV]));
 
-    GameBoard.Room memory dining = GameBoard.Room(16, 9, 8, 7, [1, 24, NV, NV], 'Dining Room');
-    gameBoard.addRoom(dining);
+    // dining room
+    gameBoard.addRoom(GameBoard.Room(7, 16, 9, 8, 6, [1, 24, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(7, 19, 15, 5, 1, [NV, NV, NV, NV]));
 
-    GameBoard.Room memory kitchen = GameBoard.Room(18, 18, 6, 6, [1, NV, NV, NV], 'Kitchen');
-    gameBoard.addRoom(kitchen);
+    // kitchen
+    gameBoard.addRoom(GameBoard.Room(8, 18, 18, 5, 1, [1, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(8, 18, 19, 6, 5, [NV, NV, NV, NV]));
   }
 
   function getName(uint256 _gameId) external view returns (string memory) {

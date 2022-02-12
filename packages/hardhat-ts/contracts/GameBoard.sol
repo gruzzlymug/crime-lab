@@ -12,13 +12,20 @@ import 'hardhat/console.sol';
 // Functions could take arbitrarily long arrays.
 contract GameBoard {
   struct Room {
+    uint256 id;
     uint256 x;
     uint256 y;
     uint256 width;
     uint256 height;
     uint256[4] doors;
-    string name;
   }
+
+  // NOTE ¡magic number!
+  uint256 constant NV = 65535;
+
+  uint256 public constant CELL_ROOM = 2;
+  uint256 public constant CELL_DOOR = 3;
+  uint256 public constant CELL_START = 4;
 
   string name;
   uint256[8] starts;
@@ -49,16 +56,13 @@ contract GameBoard {
   }
 
   function getMap() public view returns (uint256[] memory) {
-    // NOTE ¡magic number!
-    uint256 NV = 65535;
-
     uint256 count = rows * cols;
     uint256[] memory map = new uint256[](count);
     // starts
     for (uint256 i = 0; i < starts.length; ++i) {
       uint256 cellId = starts[i];
       if (cellId != NV) {
-        map[cellId] = 4;
+        map[cellId] = CELL_START;
       }
     }
     // rooms
@@ -67,7 +71,7 @@ contract GameBoard {
       uint256 cellId = rooms[i].y * cols + rooms[i].x;
       for (uint256 j = 0; j < rooms[i].height; ++j) {
         for (uint256 k = 0; k < rooms[i].width; ++k) {
-          map[cellId + j * cols + k] = 2;
+          map[cellId + j * cols + k] = CELL_ROOM;
         }
       }
       // doors
@@ -76,7 +80,7 @@ contract GameBoard {
         if (door != NV) {
           uint256 doorX = door % rooms[i].width;
           uint256 doorY = door / rooms[i].width;
-          map[cellId + doorY * cols + doorX] = 3;
+          map[cellId + doorY * cols + doorX] = CELL_DOOR;
         }
       }
     }
