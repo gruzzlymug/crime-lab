@@ -65,39 +65,39 @@ contract CrimeLab is BaseCase {
 
     // TODO move IDs to constants
     // study
-    gameBoard.addRoom(GameBoard.Room(0, 0, 0, 6, 1, [NV, NV, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(0, 0, 1, 7, 3, [20, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(0, 0, 0, 6, 1, [NV, NV, NV, NV], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(0, 0, 1, 7, 3, [20, NV, NV, NV], [uint256(14), 8]));
 
     // library
-    gameBoard.addRoom(GameBoard.Room(1, 1, 6, 5, 1, [NV, NV, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(1, 0, 7, 7, 3, [13, NV, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(1, 1, 10, 5, 1, [2, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(1, 1, 6, 5, 1, [NV, NV, NV, NV], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(1, 0, 7, 7, 3, [13, NV, NV, NV], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(1, 1, 10, 5, 1, [2, NV, NV, NV], [NV, NV]));
 
     // billiard
-    gameBoard.addRoom(GameBoard.Room(2, 0, 12, 6, 5, [1, 23, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(2, 0, 12, 6, 5, [1, 23, NV, NV], [NV, NV]));
 
     // conservatory
-    gameBoard.addRoom(GameBoard.Room(3, 1, 19, 4, 1, [3, NV, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(3, 0, 20, 6, 4, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(3, 1, 19, 4, 1, [3, NV, NV, NV], [uint256(0), 6]));
+    gameBoard.addRoom(GameBoard.Room(3, 0, 20, 6, 4, [NV, NV, NV, NV], [NV, NV]));
 
     // hall
-    gameBoard.addRoom(GameBoard.Room(4, 9, 0, 6, 7, [24, 38, 39, NV]));
+    gameBoard.addRoom(GameBoard.Room(4, 9, 0, 6, 7, [24, 38, 39, NV], [NV, NV]));
 
     // ballroom
-    gameBoard.addRoom(GameBoard.Room(5, 8, 17, 8, 6, [uint256(1), 6, 16, 23]));
-    gameBoard.addRoom(GameBoard.Room(5, 10, 23, 4, 2, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(5, 8, 17, 8, 6, [uint256(1), 6, 16, 23], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(5, 10, 23, 4, 2, [NV, NV, NV, NV], [NV, NV]));
 
     // lounge
-    gameBoard.addRoom(GameBoard.Room(6, 18, 0, 6, 1, [NV, NV, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(6, 17, 1, 7, 5, [28, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(6, 18, 0, 6, 1, [NV, NV, NV, NV], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(6, 17, 1, 7, 5, [28, NV, NV, NV], [uint256(34), 3]));
 
     // dining room
-    gameBoard.addRoom(GameBoard.Room(7, 16, 9, 8, 6, [1, 24, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(7, 19, 15, 5, 1, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(7, 16, 9, 8, 6, [1, 24, NV, NV], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(7, 19, 15, 5, 1, [NV, NV, NV, NV], [NV, NV]));
 
     // kitchen
-    gameBoard.addRoom(GameBoard.Room(8, 18, 18, 5, 1, [1, NV, NV, NV]));
-    gameBoard.addRoom(GameBoard.Room(8, 18, 19, 6, 5, [NV, NV, NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(8, 18, 18, 5, 1, [1, NV, NV, NV], [NV, NV]));
+    gameBoard.addRoom(GameBoard.Room(8, 18, 19, 6, 5, [NV, NV, NV, NV], [uint256(24), 0]));
   }
 
   function getName(uint256 _gameId) external view returns (string memory) {

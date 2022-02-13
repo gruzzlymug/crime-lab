@@ -25,7 +25,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
   const startColor = "#d00";
   const roomColor = "#dd0";
   const doorColor = "#bb0";
-  const wallColor = "#333";
+  const passageColor = "#550";
 
   let gameMap: string[][] = [];
 
@@ -49,13 +49,14 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
     }
 
     const cellType = mapBits & 0x0f;
-    // const cellGroupId = (mapBits & 0xf0) >> 4;
+    const groupId = (mapBits & 0xf0) >> 4;
     switch (cellType) {
       case 0:
         cellColor = corridorColor;
         break;
       case 1:
-        cellColor = wallColor;
+        // TODO unused
+        // cellColor = ;
         break;
       case 2:
         cellColor = roomColor;
@@ -65,6 +66,10 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
         break;
       case 4:
         cellColor = startColor;
+        break;
+      case 5:
+        const targetGroupId = (mapBits & 0xf00) >> 8;
+        cellColor = passageColor;
         break;
     }
 
@@ -76,6 +81,11 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
 
 function generateBoard(dims: Dimensions, clickHandler: any, gameMap: string[][]): Array<JSX.Element> {
   let board: Array<JSX.Element> = [];
+  // TODO ¿improve?
+  if (gameMap.length === 0) {
+    return board;
+  }
+
   for (let r: number = 0; r < dims.rows; r++) {
     let currentColumns: Array<JSX.Element> = [];
     for (let c: number = 0; c < dims.cols; c++) {

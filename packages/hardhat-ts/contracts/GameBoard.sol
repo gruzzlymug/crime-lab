@@ -18,6 +18,7 @@ contract GameBoard {
     uint256 width;
     uint256 height;
     uint256[4] doors;
+    uint256[2] passage;
   }
 
   // NOTE ¡magic number!
@@ -26,6 +27,7 @@ contract GameBoard {
   uint256 public constant CELL_ROOM = 2;
   uint256 public constant CELL_DOOR = 3;
   uint256 public constant CELL_START = 4;
+  uint256 public constant CELL_PASSAGE = 5;
 
   string name;
   uint256[8] starts;
@@ -86,6 +88,14 @@ contract GameBoard {
           uint256 doorY = door / rooms[i].width;
           map[cellId + doorY * cols + doorX] = encodedRoomId | CELL_DOOR;
         }
+      }
+      // passages
+      uint256 passage = rooms[i].passage[0];
+      if (passage != NV) {
+        uint256 passageX = passage % rooms[i].width;
+        uint256 passageY = passage / rooms[i].width;
+        uint256 encodedTargetId = rooms[i].passage[1] << 8;
+        map[cellId + passageY * cols + passageX] = encodedTargetId | encodedRoomId | CELL_PASSAGE;
       }
     }
 
