@@ -20,20 +20,18 @@ interface Dimensions {
   cols: number
 };
 
-function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]> {
+function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
   const corridorColor = "#ddd";
   const startColor = "#d00";
   const roomColor = "#dd0";
   const doorColor = "#bb0";
   const wallColor = "#333";
 
-  // TODO now that all cells are explicitly set, a map may be overkill
-  let gameMap: Map<number, string[]> = new Map<number, string[]>();
+  let gameMap: string[][] = [];
 
   for (let i = 0; i < cells.length; ++i) {
-    // NOTE toNumber apparently means a 32 bit number
-    const mapBits = cells[i].toNumber();
-    const gameBits = cells[i].shr(32).toNumber();
+    const mapBits = cells[i].toNumber() & 0xffffffff;
+    const gameBits = cells[i].shr(32).toNumber() & 0xffffffff;
 
     let cellColor = "#f00";
     let cellOccupant = "";
@@ -70,27 +68,21 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): Map<number, string[]
         break;
     }
 
-    gameMap.set(i, [cellColor, cellOccupant]);
+    gameMap.push([cellColor, cellOccupant]);
   }
 
   return gameMap;
 }
 
-function generateBoard(dims: Dimensions, clickHandler: any, gameMap: Map<number, string[]>): Array<JSX.Element> {
+function generateBoard(dims: Dimensions, clickHandler: any, gameMap: string[][]): Array<JSX.Element> {
   let board: Array<JSX.Element> = [];
   for (let r: number = 0; r < dims.rows; r++) {
     let currentColumns: Array<JSX.Element> = [];
     for (let c: number = 0; c < dims.cols; c++) {
-      let cellColor = "#ddd";
-      let cellContent = "□";
-
       const cellId = r * dims.cols + c;
-      const props = gameMap.get(cellId);
-
-      if (props != undefined) {
-        cellColor = props[0];
-        cellContent = props[1];
-      }
+      const props = gameMap[cellId];
+      const cellColor = props[0];
+      const cellContent = props[1];
 
       const cellSize = '2.0em';
       const cellStyle = { background: cellColor, width: cellSize, height: cellSize, fontSize: 9, padding: 2 };
