@@ -12,7 +12,7 @@ function dumpMap(map: any) {
       console.log(line);
       line = '';
     }
-    line += ' ' + map[i].toNumber();
+    line += ' ' + (map[i].toNumber() & 0x0f);
   }
 }
 
@@ -27,7 +27,7 @@ describe("GameBoard", function () {
     expect(true).to.equal(true);
   })
 
-  it("recognize a valid move", async function () {
+  it("recognize a valid move in a corridor", async function () {
     const GameBoard = await ethers.getContractFactory("GameBoard");
     const gameBoard = await GameBoard.deploy("Dale");
     await gameBoard.deployed();
@@ -38,6 +38,24 @@ describe("GameBoard", function () {
     await gameBoard.addStarts([start, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,]);
     // const map = await gameBoard.getMap();
     // dumpMap(map);
+
+    const moveIsValid = await gameBoard.isValidMove(start, end, [NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE]);
+    expect(moveIsValid).to.equal(true);
+  })
+
+  it("recognize a valid move to a door", async function () {
+    const GameBoard = await ethers.getContractFactory("GameBoard");
+    const gameBoard = await GameBoard.deploy("Dale");
+    await gameBoard.deployed();
+
+    const NO_VALUE = 65535;
+    const start = 25 + (3 * 24);
+    const end = start + 8;
+    await gameBoard.addStarts([start, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,]);
+    gameBoard.addRoom([4, 9, 0, 6, 7, [24, 38, 39, NO_VALUE], [NO_VALUE, NO_VALUE]]);
+
+    const map = await gameBoard.getMap();
+    dumpMap(map);
 
     const moveIsValid = await gameBoard.isValidMove(start, end, [NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE]);
     expect(moveIsValid).to.equal(true);

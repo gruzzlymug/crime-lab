@@ -188,14 +188,15 @@ contract GameBoard {
     return isValid;
   }
 
-  function _isWalkable(uint256 terrain) internal pure returns (bool) {
-    if (terrain == CELL_CORRIDOR || terrain == CELL_DOOR || terrain == CELL_PASSAGE) {
+  function _isWalkable(uint256 _terrain) internal pure returns (bool) {
+    // strip everything but the cell type
+    _terrain &= 0x0f;
+    if (_terrain == CELL_CORRIDOR || _terrain == CELL_DOOR) {
       return true;
     }
     return false;
   }
 
-  // NOTE currently unused
   function _convertXy(uint256 x, uint256 y) internal pure returns (uint256) {
     return y * cols + x;
   }
