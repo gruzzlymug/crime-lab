@@ -24,10 +24,13 @@ contract GameBoard {
   // NOTE ¡magic number!
   uint256 constant NV = 65535;
 
+  uint256 public constant CELL_CORRIDOR = 0;
+  uint256 public constant CELL_WALL = 1; // for obstructions
   uint256 public constant CELL_ROOM = 2;
   uint256 public constant CELL_DOOR = 3;
   uint256 public constant CELL_START = 4;
   uint256 public constant CELL_PASSAGE = 5;
+  uint256 public constant CELL_QUEUED = 6;
 
   string name;
   uint256[8] starts;
@@ -38,6 +41,7 @@ contract GameBoard {
 
   constructor(string memory _name) {
     name = _name;
+    // TODO initialize starts to NO_VALUE
   }
 
   function addStarts(uint256[8] memory _starts) public {
@@ -102,8 +106,97 @@ contract GameBoard {
     return map;
   }
 
+  function isValidMove(
+    uint256 _start,
+    uint256 _end,
+    uint256[4] memory _obstructions
+  ) public view returns (bool) {
+    uint256 numCells = rows * cols;
+    if (_start >= numCells || _end >= numCells) {
+      return false;
+    }
+    if (_start == _end) {
+      return false;
+    }
+
+    uint256[] memory map = getMap();
+    // ensure end location is walkable, start assumed to be OK
+    if (!_isWalkable(map[_end])) {
+      return false;
+    }
+    // add obstructions
+    for (uint256 i = 0; i < 4; ++i) {
+      if (_obstructions[i] != NV) {
+        map[_obstructions[i]] = CELL_WALL;
+      }
+    }
+
+    // flood fill for initial implementation
+    bool isValid = false;
+    uint256[] memory queue = new uint256[](numCells);
+    uint256 rp = 0;
+    uint256 wp = 0;
+    queue[wp++] = _start;
+    uint256 numSeeks = 0;
+    while (rp < wp) {
+      if (numSeeks >= numCells) {
+        return false;
+      }
+      ++numSeeks;
+
+      uint256 pos = queue[rp++];
+      if (pos < numCells) {
+        if (pos == _end) {
+          isValid = true;
+          break;
+        } else {
+          // check adjacent cells
+          uint256 y = pos / cols;
+          uint256 x = pos % cols;
+
+          if (x > 0) {
+            uint256 left = _convertXy(x - 1, y);
+            if (_isWalkable(map[left])) {
+              queue[wp++] = left;
+              map[left] = CELL_QUEUED;
+            }
+          }
+          if (x < cols) {
+            uint256 right = _convertXy(x + 1, y);
+            if (_isWalkable(map[right])) {
+              queue[wp++] = right;
+              map[right] = CELL_QUEUED;
+            }
+          }
+          if (y > 0) {
+            uint256 up = _convertXy(x, y - 1);
+            if (_isWalkable(map[up])) {
+              queue[wp++] = up;
+              map[up] = CELL_QUEUED;
+            }
+          }
+          if (y < rows) {
+            uint256 down = _convertXy(x, y + 1);
+            if (_isWalkable(map[down])) {
+              queue[wp++] = down;
+              map[down] = CELL_QUEUED;
+            }
+          }
+        }
+      }
+    }
+    return isValid;
+  }
+
+  function _isWalkable(uint256 terrain) internal pure returns (bool) {
+    if (terrain == CELL_CORRIDOR || terrain == CELL_DOOR || terrain == CELL_PASSAGE) {
+      return true;
+    }
+    return false;
+  }
+
   // NOTE currently unused
   function _convertXy(uint256 x, uint256 y) internal pure returns (uint256) {
-    return y * 22 + x;
+    return y * cols + x;
   }
 }

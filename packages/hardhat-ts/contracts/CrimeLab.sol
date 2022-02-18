@@ -296,8 +296,7 @@ contract CrimeLab is BaseCase {
     return output;
   }
 
-  // TODO ensure move is valid
-  function setPlayerPosition(uint256 _position) public {
+  function setPlayerPosition(uint256 _newPosition) public {
     uint256 gameIndex = player_to_game[msg.sender];
     require(gameIndex != 0, 'Player not in game');
 
@@ -305,10 +304,14 @@ contract CrimeLab is BaseCase {
     uint256 numPlayers = getNumPlayers(gameIndex);
     uint256 playerIndex = game.turn % numPlayers;
     require(game_to_players[gameIndex][playerIndex].id == msg.sender, 'Player not active');
-    game_to_players[gameIndex][playerIndex].position = _position;
-    game.moved = true;
+    uint256 currentPosition = game_to_players[gameIndex][playerIndex].position;
+    if (gameBoard.isValidMove(currentPosition, _newPosition, [NV, NV, NV, NV])) {
+      game_to_players[gameIndex][playerIndex].position = _newPosition;
+      game.moved = true;
 
-    emit PlayerMoved(gameIndex, msg.sender);
+      emit PlayerMoved(gameIndex, msg.sender);
+    }
+    // TODO maybe do something if it fails
   }
 
   function getPlayerMoved(uint256 _gameId) external view returns (bool) {
