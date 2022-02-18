@@ -131,56 +131,60 @@ contract GameBoard {
       }
     }
 
-    // flood fill for initial implementation
+    // flood fill for validation
     bool isValid = false;
-    uint256[] memory queue = new uint256[](numCells);
+    uint256 maxSteps = 6;
+    // TODO reduce the size of these buffers as much as possible
+    // NOTE buffer overruns implicitly prevented by step counting
+    uint256 bufSize = numCells / 2;
+    uint256[] memory queue = new uint256[](bufSize);
+    uint256[] memory steps = new uint256[](bufSize);
     uint256 rp = 0;
     uint256 wp = 0;
-    queue[wp++] = _start;
-    uint256 numSeeks = 0;
+
+    queue[wp] = _start;
+    steps[wp++] = 0;
     while (rp < wp) {
-      if (numSeeks >= numCells) {
-        return false;
+      uint256 pos = queue[rp];
+      uint256 dist = steps[rp++];
+      if (pos == _end) {
+        isValid = true;
+        break;
       }
-      ++numSeeks;
-
-      uint256 pos = queue[rp++];
-      if (pos < numCells) {
-        if (pos == _end) {
-          isValid = true;
-          break;
-        } else {
-          // check adjacent cells
-          uint256 y = pos / cols;
-          uint256 x = pos % cols;
-
-          if (x > 0) {
-            uint256 left = _convertXy(x - 1, y);
-            if (_isWalkable(map[left])) {
-              queue[wp++] = left;
-              map[left] = CELL_QUEUED;
-            }
+      if (dist < maxSteps) {
+        // check adjacent cells
+        uint256 x = pos % cols;
+        uint256 y = pos / cols;
+        if (x > 0) {
+          uint256 left = _convertXy(x - 1, y);
+          if (_isWalkable(map[left])) {
+            queue[wp] = left;
+            steps[wp++] = dist + 1;
+            map[left] = CELL_QUEUED;
           }
-          if (x < cols - 1) {
-            uint256 right = _convertXy(x + 1, y);
-            if (_isWalkable(map[right])) {
-              queue[wp++] = right;
-              map[right] = CELL_QUEUED;
-            }
+        }
+        if (x < cols - 1) {
+          uint256 right = _convertXy(x + 1, y);
+          if (_isWalkable(map[right])) {
+            queue[wp] = right;
+            steps[wp++] = dist + 1;
+            map[right] = CELL_QUEUED;
           }
-          if (y > 0) {
-            uint256 up = _convertXy(x, y - 1);
-            if (_isWalkable(map[up])) {
-              queue[wp++] = up;
-              map[up] = CELL_QUEUED;
-            }
+        }
+        if (y > 0) {
+          uint256 up = _convertXy(x, y - 1);
+          if (_isWalkable(map[up])) {
+            queue[wp] = up;
+            steps[wp++] = dist + 1;
+            map[up] = CELL_QUEUED;
           }
-          if (y < rows - 1) {
-            uint256 down = _convertXy(x, y + 1);
-            if (_isWalkable(map[down])) {
-              queue[wp++] = down;
-              map[down] = CELL_QUEUED;
-            }
+        }
+        if (y < rows - 1) {
+          uint256 down = _convertXy(x, y + 1);
+          if (_isWalkable(map[down])) {
+            queue[wp] = down;
+            steps[wp++] = dist + 1;
+            map[down] = CELL_QUEUED;
           }
         }
       }
