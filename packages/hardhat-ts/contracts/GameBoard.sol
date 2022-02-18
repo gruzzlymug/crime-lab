@@ -161,7 +161,7 @@ contract GameBoard {
               map[left] = CELL_QUEUED;
             }
           }
-          if (x < cols) {
+          if (x < cols - 1) {
             uint256 right = _convertXy(x + 1, y);
             if (_isWalkable(map[right])) {
               queue[wp++] = right;
@@ -175,7 +175,7 @@ contract GameBoard {
               map[up] = CELL_QUEUED;
             }
           }
-          if (y < rows) {
+          if (y < rows - 1) {
             uint256 down = _convertXy(x, y + 1);
             if (_isWalkable(map[down])) {
               queue[wp++] = down;
