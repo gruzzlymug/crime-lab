@@ -25,6 +25,13 @@ export interface IGameStatusProps {
 export const GameStatus: FC<IGameStatusProps> = ({ gameId, gameName, turn, players, activePlayerIndex, hand, dieRoll }) => {
   const numPlayers = players.length;
 
+  const cardCodes = [
+    'XX',
+    ':M', ':S', ':P', ':G', ':W', ':K',
+    '¡r', '¡p', '¡k', '¡w', '¡c', '¡v',
+    '.B', '.S', '.H', '.L', '.D', '.R', '.C', '.Y', '.K'
+  ];
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-evenly', flexWrap: 'wrap', marginTop: 18 }}>
@@ -59,7 +66,7 @@ export const GameStatus: FC<IGameStatusProps> = ({ gameId, gameName, turn, playe
         <div>
           <Text type="secondary">Your hand</Text>
           <Title level={3} style={{ marginTop: 0 }}>
-            {hand.length > 0 ? hand.map((card) => { return card + " " }) : "no cards"}
+            {hand.length > 0 ? hand.map((card) => { return cardCodes[card] + " " }) : "no cards"}
           </Title>
         </div>
       </div>
