@@ -11,3 +11,4 @@ export const CrimeLab = lazier(() => import('./crimelab/CrimeLab'), 'CrimeLab');
 export const MinimalGame = lazier(() => import('./minimalgame/MinimalGame'), 'MinimalGame');
 export const Lobby = lazier(() => import('./crimes/Lobby'), 'Lobby');
 export const Crime = lazier(() => import('./crimes/Crime'), 'Crime');
+export const MapEditor = lazier(() => import('./tools/MapEditor'), 'MapEditor');

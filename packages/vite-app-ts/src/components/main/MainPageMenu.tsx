@@ -39,6 +39,15 @@ export const MainPageMenu: FC<IMainPageMenuProps> = (props) => {
           CrimeLab
         </Link>
       </Menu.Item>
+      <Menu.Item key="/mapeditor">
+        <Link
+          onClick={() => {
+            props.setRoute('/mapeditor');
+          }}
+          to="/mapeditor">
+          Map Editor
+        </Link>
+      </Menu.Item>
       <Menu.Item key="/minimalgame">
         <Link
           onClick={() => {
