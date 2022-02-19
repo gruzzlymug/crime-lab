@@ -19,7 +19,7 @@ export interface PlayingCard {
   imageSrc: string,
 }
 
-const playingCardsMap: Map<number, PlayingCard> = new Map([
+export const playingCardsMap: Map<number, PlayingCard> = new Map([
   [0, { name: "INVALID", imageSrc: "" }],
   [1, { name: "Mr Mustard", imageSrc: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.I7kUHqfWOtSI4sIoTCRq9gHaFD%26pid%3DApi&f=1" }],
   [2, { name: "Ms Scarlet", imageSrc: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.wP7uBW8XlxGXKOtVfaa88AHaET%26pid%3DApi&f=1" }],

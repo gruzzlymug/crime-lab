@@ -1,12 +1,12 @@
-import { FC, useContext } from 'react';
+import { FC, useContext, useState } from 'react';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
 import { useGasPrice } from 'eth-hooks';
 import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
 import { Button } from 'antd';
+import { CrimeSelector } from './CrimeSelector';
 import { logTransactionUpdate } from '~~/components/common';
-import { CrimeLab } from '~~/generated/contract-types';
 
 export interface IGameControlsProps {
   gameId: number
@@ -29,15 +29,28 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
     const unused = await result;
   }
 
-  const handleMakeSuggestionButtonClick = async () => {
-    // A random crime! So senseless!
+  const handleMakeSuggestionButtonClick = async (suspect: any, weapon: any, room: any) => {
     const crime = {
-      suspect: Math.floor(Math.random() * (6 - 1)) + 1,
-      weapon: Math.floor(Math.random() * (12 - 7)) + 7,
-      room: Math.floor(Math.random() * (21 - 13)) + 13
+      suspect: suspect,
+      weapon: weapon,
+      room: room
     }
 
     const result = tx?.(crimeLabContract?.makeSuggestion(gameId, crime), (update: any) => {
+      logTransactionUpdate(update);
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    const unused = await result;
+  }
+
+  const handleMakeAccusationButtonClick = async (suspect: any, weapon: any, room: any) => {
+    const crime = {
+      suspect: suspect,
+      weapon: weapon,
+      room: room
+    }
+
+    const result = tx?.(crimeLabContract?.makeAccusation(gameId, crime), (update: any) => {
       logTransactionUpdate(update);
     });
     console.log("awaiting metamask/web3 confirm result...", result);
@@ -77,12 +90,8 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
         <Button onClick={handleStartGameButtonClick}>
           Start Game
         </Button>
-        <Button onClick={handleMakeSuggestionButtonClick}>
-          Make Suggestion
-        </Button>
-        <Button disabled>
-          Make Accusation
-        </Button>
+        <CrimeSelector guessType="Suggestion" submitHandler={handleMakeSuggestionButtonClick} />
+        <CrimeSelector guessType="Accusation" submitHandler={handleMakeAccusationButtonClick} />
         <Button onClick={handleEndTurnButtonClick}>
           End Turn
         </Button>

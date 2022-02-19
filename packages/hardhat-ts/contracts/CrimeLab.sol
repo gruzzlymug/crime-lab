@@ -368,7 +368,7 @@ contract CrimeLab is BaseCase {
     return disproved;
   }
 
-  function makeAccusation(uint256 _gameId, Crime memory _crime) external view returns (bool) {
+  function makeAccusation(uint256 _gameId, Crime memory _crime) public returns (bool) {
     require(_gameId >= 0 && _gameId < games.length);
     Game storage game = games[_gameId];
     // compare accusation to Game crime
