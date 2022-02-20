@@ -11,6 +11,8 @@ contract CrimeLab is BaseCase {
   event DieRolled(uint256 gameId, address player, uint256 roll);
   event SuggestionMade(uint256 gameId, address player);
   event SuggestionData(uint256 gameId, uint256 suspect, uint256 weapon, uint256 room);
+  event AccusationMade(uint256 gameId, address player);
+  event AccusationData(uint256 gameId, uint256 suspect, uint256 weapon, uint256 room);
   event PlayerMoved(uint256 gameId, address player);
   event TurnTaken(uint256 gameId);
 
@@ -369,6 +371,11 @@ contract CrimeLab is BaseCase {
   }
 
   function makeAccusation(uint256 _gameId, Crime memory _crime) public returns (bool) {
+    uint256 numPlayers = game_to_players[_gameId].length;
+    uint256 activePlayerIndex = (games[_gameId].turn) % numPlayers;
+    emit AccusationMade(_gameId, game_to_players[_gameId][activePlayerIndex].id);
+    emit AccusationData(_gameId, _crime.suspect, _crime.weapon, _crime.room);
+
     require(_gameId >= 0 && _gameId < games.length);
     Game storage game = games[_gameId];
     // compare accusation to Game crime

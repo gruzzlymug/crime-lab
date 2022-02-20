@@ -49,8 +49,8 @@ describe("GameBoard", function () {
     await gameBoard.deployed();
 
     const NO_VALUE = 65535;
-    const start = 25 + (3 * 24);
-    const end = start + 8;
+    const start = 4 + (4 * 24);
+    const end = start + 5;
     await gameBoard.addStarts([start, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE, NO_VALUE,]);
     gameBoard.addRoom([4, 9, 0, 6, 7, [24, 38, 39, NO_VALUE], [NO_VALUE, NO_VALUE]]);
 

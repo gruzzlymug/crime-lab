@@ -39,6 +39,11 @@ export const contractConnectorConfig = () => {
         hardhatContracts.MinimalGame__factory,
         hardhatContractsJson
       ),
+      MintedMap: createConnectorForHardhatContract(
+        'MintedMap',
+        hardhatContracts.MintedMap__factory,
+        hardhatContractsJson
+      ),
 
       // 🙋🏽‍♂️ Add your external contracts here, make sure to define the address in `externalContractsConfig.ts`
       DAI: createConnectorForExternalContract('DAI', externalContracts.DAI__factory, externalContractsAddressMap),
