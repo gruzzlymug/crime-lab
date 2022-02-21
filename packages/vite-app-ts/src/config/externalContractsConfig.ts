@@ -16,5 +16,6 @@ export const externalContractsAddressMap: TExternalContractsAddressMap = {
   [NETWORKS.mainnet.chainId]: {
     DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
     UNI: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+    LOOT: '0xFF9C1b15B16263C61d017ee9F65C50e4AE0113D7',
   },
 };
