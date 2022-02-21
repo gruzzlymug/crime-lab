@@ -20,6 +20,7 @@ interface Dimensions {
   cols: number
 };
 
+// TODO centralize flags and masks
 function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
   const corridorColor = "#ddd";
   const startColor = "#d00";
@@ -48,11 +49,13 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
         break;
     }
 
+    const isReachable = (gameBits & (0x01 << 12)) === (0x01 << 12);
+
     const cellType = mapBits & 0x0f;
     const groupId = (mapBits & 0xf0) >> 4;
     switch (cellType) {
       case 0:
-        cellColor = corridorColor;
+        cellColor = isReachable ? "#bbc" : corridorColor;
         break;
       case 1:
         // TODO unused
@@ -62,7 +65,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
         cellColor = roomColor;
         break;
       case 3:
-        cellColor = doorColor;
+        cellColor = isReachable ? "#880" : doorColor;
         break;
       case 4:
         cellColor = startColor;

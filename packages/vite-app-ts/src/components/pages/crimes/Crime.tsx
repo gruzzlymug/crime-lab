@@ -18,6 +18,40 @@ interface PlayerProps {
   position: BigNumber
 }
 
+// TODO BUG allows non-contiguous moves!
+// TODO eliminate duplication of map, if possible
+// TODO use a real "valid move" indicator instead of 13
+// NOTE calling "map" object "cells" elsewhere (e.g. Board.tsx)
+function markAvailableMoves(map: BigNumber[], pos: BigNumber, steps: number) {
+  if (map.length === 0 || pos === undefined) {
+    return map;
+  }
+
+  // TODO eliminate hard-coding
+  const cols = 24;
+  const rows = 25;
+
+  const px = pos.toNumber() % cols;
+  const py = Math.floor(pos.toNumber() / cols);
+  const availableMoveFlag = BigNumber.from(0x01 << 12).shl(32);
+
+  let newMap: BigNumber[] = [];
+  for (let i = 0; i < map.length; ++i) {
+    const mapBits = map[i].toNumber() & 0xffffffff;
+    const cellType = mapBits & 0x0f;
+    const x = i % cols;
+    const y = Math.floor(i / cols);
+    const manhattanDist = Math.abs(x - px) + Math.abs(y - py);
+    const validMove = manhattanDist > 0 && manhattanDist < steps && (cellType === 0 || cellType === 3);
+    if (validMove) {
+      newMap[i] = map[i].or(availableMoveFlag);
+    } else {
+      newMap[i] = map[i];
+    }
+  }
+  return newMap;
+}
+
 export const Crime: FC<ICrimeProps> = () => {
   const ethersContext = useEthersContext();
   const crimeLabContract = useAppContracts('CrimeLab', ethersContext.chainId);
@@ -57,6 +91,8 @@ export const Crime: FC<ICrimeProps> = () => {
   const turn = gameTurn?.toNumber() || 0;
   const activePlayerIndex = turn % (numPlayers?.toNumber() || 0);
 
+  const markedUpMap = markAvailableMoves(map || [], players[activePlayerIndex]?.position, 6);
+
   let sortedHand: Array<number> = [];
   if (hand) {
     sortedHand = hand.map(card => { return card.toNumber() }).sort((a, b) => { return a - b });
@@ -77,7 +113,7 @@ export const Crime: FC<ICrimeProps> = () => {
         gameId={gameId?.toNumber() || 0}
       />
       <Board
-        cells={map || []}
+        cells={markedUpMap || []}
       />
       <PlayingCards hand={sortedHand} />
     </div>
