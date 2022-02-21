@@ -42,7 +42,9 @@ function markAvailableMoves(map: BigNumber[], pos: BigNumber, steps: number) {
     const x = i % cols;
     const y = Math.floor(i / cols);
     const manhattanDist = Math.abs(x - px) + Math.abs(y - py);
-    const validMove = manhattanDist > 0 && manhattanDist < steps && (cellType === 0 || cellType === 3);
+    const inRange = manhattanDist > 0 && manhattanDist <= steps;
+    const isWalkable = cellType === 0 || cellType === 3;
+    const validMove = inRange && isWalkable;
     if (validMove) {
       newMap[i] = map[i].or(availableMoveFlag);
     } else {
