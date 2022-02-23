@@ -27,4 +27,35 @@ describe("Loot", function () {
     console.log(await loot.getRing(tokenId));
     expect(true).to.equal(true);
   });
+
+  describe("Dungeons", function () {
+    it("should generate a dungeon", async function () {
+      const DG = await ethers.getContractFactory("dungeonsGenerator");
+      const dg = await DG.deploy();
+      const DR = await ethers.getContractFactory("dungeonsRender");
+      const dr = await DR.deploy();
+      const DS = await ethers.getContractFactory("dungeonsSeeder");
+      const ds = await DS.deploy();
+
+      const Dungeons = await ethers.getContractFactory("Dungeons");
+      const dungeons = await Dungeons.deploy(dr["address"], dg["address"], ds["address"]);
+
+      const tokenId = 1;
+      dungeons.claim(tokenId, { value: ethers.utils.parseEther("0.5") });
+      console.log(await dungeons.getSvg(tokenId));
+      expect(true).to.equal(true);
+    });
+  });
+
+  describe("Blitmap", function () {
+    it("should create a blitmap", async function () {
+      const Blitmap = await ethers.getContractFactory("Blitmap");
+      const blitmap = await Blitmap.deploy();
+
+      // TBD
+
+      expect(true).to.equal(true);
+    });
+  });
+
 });
