@@ -73,4 +73,14 @@ describe("Loot", function () {
     });
   });
 
+  describe("RaiderToken", function () {
+    it("should create raider tokens", async function () {
+      const RaiderToken = await ethers.getContractFactory("RaiderToken");
+      const raiderToken = await RaiderToken.deploy();
+
+      // TODO add test
+
+      expect(true).to.equal(true);
+    });
+  });
 });
