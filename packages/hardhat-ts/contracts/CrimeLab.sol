@@ -298,6 +298,14 @@ contract CrimeLab is BaseCase {
     return output;
   }
 
+  // TODO write a predicate that is true when a (given) player is taking a turn in a (particular) game.
+  //      use parameters as necessary.
+  //      note players can only play in one game at a time currently
+  //      this could be used in other functions (setPlayerPosition, etc) or as a modifier.
+  function isActive(uint256, uint256) private pure returns (bool) {
+    return false;
+  }
+
   function setPlayerPosition(uint256 _newPosition) public {
     uint256 gameIndex = player_to_game[msg.sender];
     require(gameIndex != 0, 'Player not in game');
@@ -306,6 +314,7 @@ contract CrimeLab is BaseCase {
     uint256 numPlayers = getNumPlayers(gameIndex);
     uint256 playerIndex = game.turn % numPlayers;
     require(game_to_players[gameIndex][playerIndex].id == msg.sender, 'Player not active');
+
     uint256 currentPosition = game_to_players[gameIndex][playerIndex].position;
     if (gameBoard.isValidMove(currentPosition, _newPosition, [NV, NV, NV, NV])) {
       game_to_players[gameIndex][playerIndex].position = _newPosition;
@@ -339,52 +348,112 @@ contract CrimeLab is BaseCase {
     emit DieRolled(gameIndex, address(0), 0);
   }
 
-  function makeSuggestion(uint256 _gameId, Crime memory _crime) public returns (bool) {
-    require(_gameId > 0 && _gameId < games.length);
+  // Rules, official (OR) vs implemented (I)
+  // (OR) No limit to number of suspects or weapons in a room
+  // (OR) You can only make 1 suggestion after entering the room. Must leave and re-enter to make another.
+  // (OR) Players can block doors and prevent other players from exiting a room
+  // (OR) If your player was moved into a room, you can either move (roll) or make a suggestion (no roll)
+  // (OR) You can suggest and accuse in the same turn
+  // (OR) It looks like after making a suggestion, everyone hears the suggestion, but only the suggester
+  //      sees the card that disproves it.
+  function isInRoom() public view returns (bool _inRoom, uint256 _roomId) {
+    uint256 gameIndex = player_to_game[msg.sender];
+    require(gameIndex != 0, 'Player not in game');
 
-    bool disproved = false;
+    Game storage game = games[gameIndex];
+    uint256 numPlayers = getNumPlayers(gameIndex);
+    uint256 playerIndex = game.turn % numPlayers;
+    require(game_to_players[gameIndex][playerIndex].id == msg.sender, 'Player not active');
 
-    // iterate through opponents and try to disprove suggestion
+    uint256 currentPosition = game_to_players[gameIndex][playerIndex].position;
+    uint256[] memory map = gameBoard.getMap();
+    // TODO hard-coded value is short-term solution
+    _inRoom = (map[currentPosition] & 0x0f) == 3;
+    _roomId = (map[currentPosition] >> 4) & 0x0f;
+    return (_inRoom, _roomId);
+  }
+
+  // TODO gameId might not be required for suggestions and accusations
+  function makeSuggestion(
+    uint256 _gameId,
+    uint256 _suspect,
+    uint256 _weapon
+  ) public returns (bool) {
+    require(_gameId < games.length, 'Game does not exist');
+
     uint256 numPlayers = game_to_players[_gameId].length;
     uint256 activePlayerIndex = (games[_gameId].turn) % numPlayers;
-    emit SuggestionMade(_gameId, game_to_players[_gameId][activePlayerIndex].id);
-    emit SuggestionData(_gameId, _crime.suspect, _crime.weapon, _crime.room);
-    uint256 opponentBaseIndex = (activePlayerIndex + 1) % numPlayers;
-    for (uint256 i = 0; i < numPlayers; ++i) {
-      uint256 opponentIndex = (opponentBaseIndex + i) % numPlayers;
-      if (opponentIndex != activePlayerIndex) {
+    require(game_to_players[_gameId][activePlayerIndex].id == msg.sender, 'Player is not active');
+
+    bool inRoom;
+    uint256 roomId;
+    (inRoom, roomId) = isInRoom();
+    require(inRoom, 'Player is not in a room');
+
+    emit SuggestionMade(_gameId, msg.sender);
+    emit SuggestionData(_gameId, _suspect, _weapon, roomId);
+
+    Crime memory crime = Crime(_suspect, _weapon, roomId);
+    return disproveCrime(_gameId, activePlayerIndex, numPlayers, crime);
+  }
+
+  // iterate through opponents and try to disprove suggestion
+  function disproveCrime(
+    uint256 _gameId,
+    uint256 _activePlayerIndex,
+    uint256 _numPlayers,
+    Crime memory _crime
+  ) private returns (bool) {
+    uint256 opponentBaseIndex = (_activePlayerIndex + 1) % _numPlayers;
+    for (uint256 i = 0; i < _numPlayers; ++i) {
+      uint256 opponentIndex = (opponentBaseIndex + i) % _numPlayers;
+      if (opponentIndex != _activePlayerIndex) {
         address player = game_to_players[_gameId][opponentIndex].id;
         uint256 numCards = player_to_cards[player].length;
         for (uint256 cardId = 0; cardId < numCards; ++cardId) {
           uint256 card = player_to_cards[player][cardId];
           if (card == _crime.suspect || card == _crime.weapon || card == _crime.room) {
+            // TODO these mods are UNDER REVIEW based on new understanding of rules
             games[_gameId].discarded += 1 << card;
             delete player_to_cards[player][cardId];
             emit CardDiscarded(card, player);
-            disproved = true;
-            break;
+            return true;
           }
         }
       }
     }
-    return disproved;
+    return false;
   }
 
-  function makeAccusation(uint256 _gameId, Crime memory _crime) public returns (bool) {
+  function makeAccusation(
+    uint256 _gameId,
+    uint256 _suspect,
+    uint256 _weapon
+  ) public returns (bool) {
+    require(_gameId < games.length, 'Game does not exist');
+
+    bool inRoom;
+    uint256 roomId;
+    (inRoom, roomId) = isInRoom();
+    require(inRoom, 'Player is not in a room');
+
     uint256 numPlayers = game_to_players[_gameId].length;
     uint256 activePlayerIndex = (games[_gameId].turn) % numPlayers;
     emit AccusationMade(_gameId, game_to_players[_gameId][activePlayerIndex].id);
-    emit AccusationData(_gameId, _crime.suspect, _crime.weapon, _crime.room);
+    emit AccusationData(_gameId, _suspect, _weapon, roomId);
 
     require(_gameId >= 0 && _gameId < games.length);
     Game storage game = games[_gameId];
     // compare accusation to Game crime
-    bool solved = _hashCrime(_crime) == _hashCrime(game.crime);
+    Crime memory crime = Crime(_suspect, _weapon, roomId);
+    bool solved = _hashCrime(crime) == _hashCrime(game.crime);
     // accuser wins or is kicked
     if (solved) {
       // wins
+      console.log('YOU WIN', msg.sender);
     } else {
       // loses
+      console.log('YOU LOSE', msg.sender);
     }
     return solved;
   }
