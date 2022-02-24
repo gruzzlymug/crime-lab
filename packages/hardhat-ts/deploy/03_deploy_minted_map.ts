@@ -42,6 +42,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   };
   await deploy('Dungeons', options);
 
+  await deploy('RaiderToken', {
+    from: deployer,
+    log: true,
+  });
+
 };
 export default func;
 func.tags = ['MintedMap'];
