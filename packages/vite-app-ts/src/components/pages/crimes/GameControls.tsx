@@ -29,28 +29,16 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
     const unused = await result;
   }
 
-  const handleMakeSuggestionButtonClick = async (suspect: any, weapon: any, room: any) => {
-    const crime = {
-      suspect: suspect,
-      weapon: weapon,
-      room: room
-    }
-
-    const result = tx?.(crimeLabContract?.makeSuggestion(gameId, crime), (update: any) => {
+  const handleMakeSuggestionButtonClick = async (suspect: any, weapon: any) => {
+    const result = tx?.(crimeLabContract?.makeSuggestion(gameId, suspect, weapon), (update: any) => {
       logTransactionUpdate(update);
     });
     console.log("awaiting metamask/web3 confirm result...", result);
     const unused = await result;
   }
 
-  const handleMakeAccusationButtonClick = async (suspect: any, weapon: any, room: any) => {
-    const crime = {
-      suspect: suspect,
-      weapon: weapon,
-      room: room
-    }
-
-    const result = tx?.(crimeLabContract?.makeAccusation(gameId, crime), (update: any) => {
+  const handleMakeAccusationButtonClick = async (suspect: any, weapon: any) => {
+    const result = tx?.(crimeLabContract?.makeAccusation(gameId, suspect, weapon), (update: any) => {
       logTransactionUpdate(update);
     });
     console.log("awaiting metamask/web3 confirm result...", result);
