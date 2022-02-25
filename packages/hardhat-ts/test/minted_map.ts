@@ -83,4 +83,21 @@ describe("Loot", function () {
       expect(true).to.equal(true);
     });
   });
+
+  describe("Uniswap", function () {
+    it("should create raider token pair", async function () {
+      const UniswapV2Factory = await ethers.getContractFactory("UniswapV2Factory");
+      const uniswapV2Factory = await UniswapV2Factory.deploy("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+
+
+      const RaiderToken = await ethers.getContractFactory("RaiderToken");
+      const raiderToken = await RaiderToken.deploy();
+
+      const RaiderToken2 = await ethers.getContractFactory("RaiderToken2");
+      const raiderToken2 = await RaiderToken2.deploy();
+
+      uniswapV2Factory.createPair(raiderToken.address, raiderToken2.address);
+      expect(true).to.equal(true);
+    });
+  });
 });

@@ -46,6 +46,16 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     from: deployer,
     log: true,
   });
+  await deploy('RaiderToken2', {
+    from: deployer,
+    log: true,
+  });
+
+  await deploy('UniswapV2Factory', {
+    from: deployer,
+    log: true,
+    args: [deployer.toString()]
+  });
 
 };
 export default func;
