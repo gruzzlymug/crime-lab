@@ -51,10 +51,21 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     log: true,
   });
 
-  await deploy('UniswapV2Factory', {
+  const uniswapV2Factory = await deploy('UniswapV2Factory', {
     from: deployer,
     log: true,
     args: [deployer.toString()]
+  });
+
+  const weth = await deploy('WETH', {
+    from: deployer,
+    log: true,
+  });
+
+  await deploy('UniswapV2Router02', {
+    from: deployer,
+    log: true,
+    args: [uniswapV2Factory["address"], weth["address"]]
   });
 
 };
