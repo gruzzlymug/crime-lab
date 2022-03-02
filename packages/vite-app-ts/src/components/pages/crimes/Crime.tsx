@@ -93,7 +93,7 @@ export const Crime: FC<ICrimeProps> = () => {
   const turn = gameTurn?.toNumber() || 0;
   const activePlayerIndex = turn % (numPlayers?.toNumber() || 0);
 
-  const markedUpMap = markAvailableMoves(map || [], players[activePlayerIndex]?.position, 6);
+  const markedUpMap = markAvailableMoves(map || [], players[activePlayerIndex]?.position, dieRoll?.toNumber() || 0);
 
   let sortedHand: Array<number> = [];
   if (hand) {

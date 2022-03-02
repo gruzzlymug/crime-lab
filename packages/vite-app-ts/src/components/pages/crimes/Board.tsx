@@ -1,10 +1,9 @@
-import { FC, useContext, useState } from 'react';
+import { FC, useContext } from 'react';
 import { useEthersContext } from 'eth-hooks/context';
 import { useAppContracts } from '~~/config/contractContext';
-import { useContractReader, useGasPrice } from 'eth-hooks';
+import { useGasPrice } from 'eth-hooks';
 import { transactor } from 'eth-components/functions';
 import { EthComponentsSettingsContext } from 'eth-components/models';
-import { Button, Row, Col } from 'antd';
 import { CrimeLab } from '~~/generated/contract-types';
 import { logTransactionUpdate } from '~~/components/common';
 import 'antd/dist/antd.css';
@@ -36,6 +35,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
 
     let cellColor = "#f00";
     let cellOccupant = "";
+    let isReachable = false;
 
     const occupantType = gameBits & 0x0f;
     switch (occupantType) {
@@ -49,7 +49,7 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
         break;
     }
 
-    const isReachable = (gameBits & (0x01 << 12)) === (0x01 << 12);
+    isReachable = (gameBits & (0x01 << 12)) === (0x01 << 12);
 
     const cellType = mapBits & 0x0f;
     const groupId = (mapBits & 0xf0) >> 4;
@@ -76,13 +76,14 @@ function generateMap(dims: Dimensions, cells: BigNumber[]): string[][] {
         break;
     }
 
-    gameMap.push([cellColor, cellOccupant]);
+    // TODO FIX. using gameMap: (string|boolean) breaks generateBoard since background must be a string
+    gameMap.push([cellColor, cellOccupant, isReachable ? "true" : "false"]);
   }
 
   return gameMap;
 }
 
-function generateBoard(dims: Dimensions, clickHandler: any, gameMap: string[][]): Array<JSX.Element> {
+function generateBoard(dims: Dimensions, moveHandler: any, gameMap: string[][]): Array<JSX.Element> {
   let board: Array<JSX.Element> = [];
   // TODO ¿improve?
   if (gameMap.length === 0) {
@@ -96,9 +97,12 @@ function generateBoard(dims: Dimensions, clickHandler: any, gameMap: string[][])
       const props = gameMap[cellId];
       const cellColor = props[0];
       const cellContent = props[1];
+      // NOTE see generateMap for explanation of string-as-bool usage
+      const isReachable = props[2] === "true";
 
       const cellSize = '2.0em';
       const cellStyle = { background: cellColor, width: cellSize, height: cellSize, fontSize: 9, padding: 2 };
+      const clickHandler = isReachable ? moveHandler : undefined;
       const cell = <button key={cellId} id={`${cellId}`} style={cellStyle} onClick={clickHandler}>
         {cellContent}
       </button>

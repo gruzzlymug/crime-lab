@@ -38,6 +38,7 @@ contract CrimeLab is BaseCase {
     Crime crime;
     uint256 discarded;
     uint256 turn;
+    uint256 lastDieRoll;
     bool moved;
   }
 
@@ -46,6 +47,8 @@ contract CrimeLab is BaseCase {
   mapping(address => uint256[]) public player_to_cards;
 
   Game[] public games;
+  // TODO maybe make this part of the game
+  uint256 prngSeed = block.timestamp;
 
   GameBoard gameBoard;
 
@@ -54,7 +57,9 @@ contract CrimeLab is BaseCase {
     Crime memory crime = Crime(INVALID, INVALID, INVALID);
     uint256 discarded = 0;
     uint256 turn = 0;
-    games.push(Game('** INVALID **', crime, discarded, turn, false));
+    uint256 lastDieRoll = 0;
+    bool moved = false;
+    games.push(Game('** INVALID **', crime, discarded, turn, lastDieRoll, moved));
 
     createBoard();
   }
@@ -148,12 +153,13 @@ contract CrimeLab is BaseCase {
     return numPlayers;
   }
 
-  // TODO placeholder logic
   function getDieRoll() public view returns (uint256) {
+    // TODO convert require to a function modifier
     uint256 gameIndex = player_to_game[msg.sender];
     require(gameIndex != 0, 'Player not in game');
 
-    return 6;
+    Game memory game = games[gameIndex];
+    return game.lastDieRoll;
   }
 
   function getNumCards(address _player) public view returns (uint256) {
@@ -191,8 +197,9 @@ contract CrimeLab is BaseCase {
     discarded += 1 << crime.room;
 
     uint256 turn = 0;
-
-    games.push(Game(_name, crime, discarded, turn, false));
+    uint256 lastDieRoll = 0;
+    bool moved = false;
+    games.push(Game(_name, crime, discarded, turn, lastDieRoll, moved));
     uint256 id = games.length - 1;
 
     addPlayerToGame(id, msg.sender);
@@ -355,8 +362,15 @@ contract CrimeLab is BaseCase {
 
     emit TurnTaken(gameIndex);
 
-    // TODO placeholder, for triggering UI update
-    emit DieRolled(gameIndex, address(0), 0);
+    game.lastDieRoll = random(5) + 1;
+    // NOTE event is for triggering UI update
+    // TODO add appropriate player address to event
+    emit DieRolled(gameIndex, address(0), game.lastDieRoll);
+  }
+
+  function random(uint256 _max) private returns (uint256) {
+    prngSeed = uint256(keccak256(abi.encode(block.number)));
+    return prngSeed % _max;
   }
 
   // Rules, official (OR) vs implemented (I)
