@@ -91,6 +91,36 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
     return buf;
   }
 
+  // inspired by
+  // https://dev.to/jrgould/use-the-web-crypto-api-to-generate-a-public-private-key-pair-for-end-to-end-asymmetric-cryptography-on-the-web-2mpe
+  const handleClickForBatshit = () => {
+    const keyPair = crypto.subtle.generateKey(
+      {
+        name: "RSA-OAEP",
+        modulusLength: 4096,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256"
+      },
+      true,
+      ["encrypt", "decrypt"]
+    )
+      .then((keyPair) => {
+        console.log("BS: ", keyPair);
+        if (keyPair.publicKey) {
+          crypto.subtle.exportKey("jwk", keyPair.publicKey)
+            .then((publicKey) => {
+              console.log("PbK: ", publicKey);
+            });
+        }
+        if (keyPair.privateKey) {
+          crypto.subtle.exportKey("jwk", keyPair.privateKey)
+            .then((privateKey) => {
+              console.log("PvK: ", privateKey);
+            });
+        }
+      });
+  }
+
   // 33.1 Generate a signing key pair, sign some data
   // from
   // https://www.w3.org/TR/WebCryptoAPI/#SP800-38B
@@ -183,6 +213,9 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
           padding: 8,
         }}
       >
+        <Button onClick={handleClickForBatshit}>
+          Batshit
+        </Button>
         <Button onClick={handleClickForCrazy}>
           Crazy
         </Button>
