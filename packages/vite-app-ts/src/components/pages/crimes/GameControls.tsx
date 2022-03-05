@@ -78,8 +78,9 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
 
   // These 2 functions from
   // https://stackoverflow.com/questions/30459767/encrypt-decrypt-between-java-and-javascript-using-web-crypto-api
-  function ab2str(buf) {
-    return String.fromCharCode.apply(null, new Uint16Array(buf));
+  function ab2str(buf: ArrayBuffer) {
+    const uint16s = new Uint16Array(buf);
+    return String.fromCharCode.apply(null, Array.from(uint16s));
   }
 
   function str2ab(str: String) {
