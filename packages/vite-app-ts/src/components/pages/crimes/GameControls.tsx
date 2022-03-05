@@ -126,7 +126,7 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
   // from
   // https://www.w3.org/TR/WebCryptoAPI/#SP800-38B
   const handleClickForCrazy = () => {
-    var encoder = new TextEncoder('utf-8');
+    var encoder = new TextEncoder();
 
     // Algorithm Object
     var algorithmKeyGen = {
@@ -154,7 +154,7 @@ export const GameControls: FC<IGameControlsProps> = ({ gameId }) => {
 
         // NOTE this didn't work
         // return window.crypto.subtle.sign(algorithmSign, key.privateKey, [dataPart1, dataPart2]);
-        return window.crypto.subtle.sign(algorithmSign, key.privateKey, ab);
+        return key.privateKey ? window.crypto.subtle.sign(algorithmSign, key.privateKey, ab) : null;
       },
       console.error.bind(console, "Unable to generate a key")
     ).then(
