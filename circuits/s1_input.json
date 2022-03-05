@@ -1,0 +1,11 @@
+{
+    "hasMustard": 0,
+    "hasScarlet": 1,
+    "hasRope": 0,
+    "hasRevolver": 1,
+    "hasBilliard": 0,
+    "hasBallroom": 1,
+    "suspect": 2,
+    "weapon": 11,
+    "room": 15
+}

@@ -1,0 +1,8 @@
+*_js/*
+*.r1cs
+*.zkey
+*.ptau
+proof.json
+public.json
+verifier.sol
+witness.wtns
