@@ -36,7 +36,6 @@ contract CrimeLab is BaseCase {
   struct Game {
     string name;
     Crime crime;
-    uint256 discarded;
     uint256 turn;
     uint256 lastDieRoll;
     bool moved;
@@ -55,11 +54,10 @@ contract CrimeLab is BaseCase {
   constructor() {
     // HACK create INVALID game as fake null
     Crime memory crime = Crime(INVALID, INVALID, INVALID);
-    uint256 discarded = 0;
     uint256 turn = 0;
     uint256 lastDieRoll = 0;
     bool moved = false;
-    games.push(Game('** INVALID **', crime, discarded, turn, lastDieRoll, moved));
+    games.push(Game('** INVALID **', crime, turn, lastDieRoll, moved));
 
     createBoard();
   }
@@ -185,21 +183,15 @@ contract CrimeLab is BaseCase {
     // ensure the player is not in any other game
     require(player_to_game[msg.sender] == 0, 'A player can only play one game at a time');
 
-    // TODO randomize selection
-    uint256 suspect = MUSTARD;
-    uint256 weapon = ROPE;
-    uint256 room = BILLIARD;
+    uint256 suspect = INVALID;
+    uint256 weapon = INVALID;
+    uint256 room = INVALID;
     Crime memory crime = Crime(suspect, weapon, room);
-
-    uint256 discarded = 0;
-    discarded += 1 << crime.suspect;
-    discarded += 1 << crime.weapon;
-    discarded += 1 << crime.room;
 
     uint256 turn = 0;
     uint256 lastDieRoll = 0;
     bool moved = false;
-    games.push(Game(_name, crime, discarded, turn, lastDieRoll, moved));
+    games.push(Game(_name, crime, turn, lastDieRoll, moved));
     uint256 id = games.length - 1;
 
     addPlayerToGame(id, msg.sender);
@@ -249,37 +241,61 @@ contract CrimeLab is BaseCase {
     }
   }
 
-  // TODO for info on random numbers see https://ethereum.stackexchange.com/questions/54375/solidity-choosing-5-random-values-of-an-array
-  function startGame(uint256 _gameId) external {
-    // shuffle cards with deterministic lookup
+  // shuffle cards with Fisher-Yates https://en.wikipedia.org/wiki/Fisher–Yates_shuffle
+  function getShuffledOrder(
+    uint256 _suspect,
+    uint256 _weapon,
+    uint256 _room
+  ) private returns (uint256[21] memory) {
     uint256[21] memory lookup = [uint256(0), 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-    for (uint256 i = 0; i < deck.length; ++i) {
-      uint256 id0 = (7 + 2 * i) % deck.length;
-      uint256 id1 = (13 + i) % deck.length;
-      uint256 t = lookup[id0];
-      lookup[id0] = lookup[id1];
-      lookup[id1] = t;
+    // remove solution cards
+    lookup[18] = _suspect;
+    lookup[_suspect] = 18;
+    lookup[19] = _weapon;
+    lookup[_weapon] = 19;
+    lookup[20] = _room;
+    lookup[_room] = 20;
+    // shuffle the rest
+    for (uint256 i = deck.length - 4; i > 0; --i) {
+      uint256 j = random(i + 1);
+      uint256 t = lookup[j];
+      lookup[j] = lookup[i];
+      lookup[i] = t;
     }
+    return lookup;
+  }
 
-    // deal cards to players
-    uint256 discarded = games[_gameId].discarded;
-    uint256 numPlayers = getNumPlayers(_gameId);
+  // NOTE the last 3 cards are the solution
+  function dealCards(
+    uint256 _gameId,
+    uint256 _numPlayers,
+    uint256[21] memory _lookup
+  ) private {
     uint256 playerIndex = 0;
-    for (uint256 i = 0; i < deck.length; ++i) {
-      uint256 card = deck[lookup[i]];
-      uint256 flag = 1 << card;
-      if (discarded & flag == 0) {
-        // assign card id to player
-        address player = game_to_players[_gameId][playerIndex].id;
-        player_to_cards[player].push(card);
+    for (uint256 i = 0; i < deck.length - 3; ++i) {
+      uint256 card = deck[_lookup[i]];
+      address player = game_to_players[_gameId][playerIndex].id;
+      player_to_cards[player].push(card);
 
-        emit CardDealt(card, player);
+      emit CardDealt(card, player);
 
-        playerIndex = (playerIndex + 1) % numPlayers;
-      }
+      playerIndex = (playerIndex + 1) % _numPlayers;
     }
+  }
 
-    // place players
+  // TODO restrict action to players in the game
+  function startGame(uint256 _gameId) external {
+    // discover the crime
+    uint256 suspect = random(6);
+    uint256 weapon = random(6) + 6;
+    uint256 room = random(9) + 12;
+    Crime memory crime = Crime(suspect, weapon, room);
+    games[_gameId].crime = crime;
+    // shuffle and deal remaining cards
+    uint256 numPlayers = getNumPlayers(_gameId);
+    uint256[21] memory lookup = getShuffledOrder(suspect, weapon, room);
+    dealCards(_gameId, numPlayers, lookup);
+    // place players on the board
     uint256[8] memory starts = gameBoard.getStarts();
     for (uint256 i = 0; i < numPlayers; ++i) {
       require(starts[i] != NO_VALUE, 'No start position available');
@@ -288,32 +304,11 @@ contract CrimeLab is BaseCase {
       emit PlayerMoved(_gameId, game_to_players[_gameId][i].id);
     }
 
-    // TODO this feels a bit janky
     endTurn();
   }
 
   function getHand() public view returns (uint256[] memory) {
     return player_to_cards[msg.sender];
-  }
-
-  function getDiscardPile() public view returns (uint256[] memory) {
-    uint256 gameIndex = player_to_game[msg.sender];
-    require(gameIndex != 0, 'Player not in game');
-
-    uint256 count = 0;
-    for (uint256 i = 0; i < deck.length; ++i) {
-      count += (games[gameIndex].discarded >> i) & 1;
-    }
-
-    uint256 cardIndex = 0;
-    uint256[] memory output = new uint256[](count);
-    for (uint256 i = 0; i < deck.length; ++i) {
-      uint256 flag = 1 << i;
-      if (games[gameIndex].discarded & flag != 0) {
-        output[cardIndex++] = i;
-      }
-    }
-    return output;
   }
 
   // TODO write a predicate that is true when a (given) player is taking a turn in a (particular) game.
@@ -429,7 +424,7 @@ contract CrimeLab is BaseCase {
     uint256 _activePlayerIndex,
     uint256 _numPlayers,
     Crime memory _crime
-  ) private returns (bool) {
+  ) private view returns (bool) {
     uint256 opponentBaseIndex = (_activePlayerIndex + 1) % _numPlayers;
     for (uint256 i = 0; i < _numPlayers; ++i) {
       uint256 opponentIndex = (opponentBaseIndex + i) % _numPlayers;
@@ -439,10 +434,6 @@ contract CrimeLab is BaseCase {
         for (uint256 cardId = 0; cardId < numCards; ++cardId) {
           uint256 card = player_to_cards[player][cardId];
           if (card == _crime.suspect || card == _crime.weapon || card == _crime.room) {
-            // TODO these mods are UNDER REVIEW based on new understanding of rules
-            games[_gameId].discarded += 1 << card;
-            delete player_to_cards[player][cardId];
-            emit CardDiscarded(card, player);
             return true;
           }
         }
@@ -487,7 +478,7 @@ contract CrimeLab is BaseCase {
   // NOTE leave game in playable state when possible
   // TODO deal with leaving after start
   // TODO deal with game-ending exits
-  // TODO discard all player cards
+  // TODO reveal all player cards
   // TODO consider stake sacrifice as penalty
   function leaveGame() external {
     uint256 gameId = player_to_game[msg.sender];

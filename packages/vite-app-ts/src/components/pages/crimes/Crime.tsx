@@ -63,8 +63,7 @@ export const Crime: FC<ICrimeProps> = () => {
   const [numPlayers] = useContractReader(crimeLabContract, crimeLabContract?.getNumPlayers, [gameId || 0], crimeLabContract?.filters.PlayerJoined());
   const [playerMoved] = useContractReader(crimeLabContract, crimeLabContract?.getPlayerMoved, [gameId || 0], crimeLabContract?.filters.PlayerMoved());
   const [gameTurn] = useContractReader(crimeLabContract, crimeLabContract?.getTurn, [gameId || 0], crimeLabContract?.filters.TurnTaken());
-  const [hand] = useContractReader(crimeLabContract, crimeLabContract?.getHand, [], crimeLabContract?.filters.CardDiscarded());
-  const [discardPile] = useContractReader(crimeLabContract, crimeLabContract?.getDiscardPile, [], crimeLabContract?.filters.CardDiscarded());
+  const [hand] = useContractReader(crimeLabContract, crimeLabContract?.getHand, [], crimeLabContract?.filters.TurnTaken());
   const [dieRoll] = useContractReader(crimeLabContract, crimeLabContract?.getDieRoll, [], crimeLabContract?.filters.DieRolled());
 
   // TODO may want multiple events to trigger this...refine

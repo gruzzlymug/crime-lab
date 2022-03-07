@@ -3,7 +3,6 @@ pragma solidity >=0.4.22 <0.9.0;
 
 contract BaseCase {
   event CardDealt(uint256 card, address player);
-  event CardDiscarded(uint256 card, address player);
 
   uint256 constant INVALID = 0;
   // suspects
