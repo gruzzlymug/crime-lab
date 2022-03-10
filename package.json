@@ -66,5 +66,10 @@
       "eslint": "^8.6.0",
       "prettier": "^2.5.1",
       "shx": "^0.3.4"
+   },
+   "dependencies": {
+      "circomlib": "^2.0.3",
+      "snarkjs": "^0.4.14",
+      "web3modal": "^1.9.5"
    }
 }
