@@ -36,12 +36,16 @@ async function buildChoice(choice: Number, salt: Number) {
     // compute witness and run through groth16 circuit for proof / signals
     let { proof, publicSignals } = await snarkjs.groth16.fullProve(
         input,
-        '/Users/kaneoldcastle/Desktop/oldcastlelabs/workspace/minimal-stab-ts/zk/makeChoice_js/makeChoice.wasm',
-        '/Users/kaneoldcastle/Desktop/oldcastlelabs/workspace/minimal-stab-ts/zk/zkey/makeChoice_final.zkey',
+        path.join(__dirname, '../../../zk/makeChoice_js', 'makeChoice.wasm'),
+        path.join(__dirname, '../../../zk/zkey', 'makeChoice_final.zkey')
     )
 
     const proofArgs = buildProofArgs(proof)
-    const choiceVerificationKey = require('/Users/kaneoldcastle/Desktop/oldcastlelabs/workspace/minimal-stab-ts/zk/zkey/choice_verification_key.json')
+
+
+    const choiceVerificationKey = require(
+        path.join(__dirname, '../../../zk/zkey', 'choice_verification_key.json')
+    )
 
     // verify proof locally
     let validProof = await snarkjs.groth16.verify(
