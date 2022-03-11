@@ -178,6 +178,8 @@ contract MinimalGame {
       // TODO award winnings
       // delete game??
       _game.winner = _winner.id;
+      player_to_game[_game.player1.id] = 0;
+      player_to_game[_game.player2.id] = 0;
     }
   }
 

@@ -238,5 +238,16 @@ describe("MinimalGame", function () {
             rejectedReveal = true;
         }
         expect(rejectedReveal).to.equal(true);
+
+        // alice should be able to rejoin another game
+        zkChoice = await buildChoice(aliceChoice, aliceSalt);
+        tx = await (await minimalGame.connect(alice).joinGame(
+            ...zkChoice['proofArgs'],
+            zkChoice['publicSignals']
+        )).wait()
+
+        gameId = await minimalGame.connect(alice).getGameId();
+        expect(Number(gameId)).to.equal(4);
+
     });
 });
