@@ -13,6 +13,7 @@ template makeChoice () {
 
    // Declaration of signals.  
    signal input choice;
+   signal input salt;
    signal output out;
    signal output pub1;
 
@@ -42,7 +43,7 @@ template makeChoice () {
     */
    component mimc1 = MiMCSponge(1, 220, 1);
    mimc1.ins[0] <== choice;
-   mimc1.k <== 0; // TODO use some public hash key?
+   mimc1.k <== salt;
    pub1 <== mimc1.outs[0];
 }
 

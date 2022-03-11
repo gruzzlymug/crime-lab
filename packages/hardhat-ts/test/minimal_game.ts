@@ -5,6 +5,8 @@ const snarkjs = require('snarkjs')
 const { mimcSpongecontract } = require("circomlibjs")
 const fs = require('fs')
 const path = require('path')
+const crypto = require('crypto')
+
 /**
  * Build contract call args
  * @dev 'massage' circom's proof args into format parsable by solidity
@@ -24,9 +26,10 @@ function buildProofArgs(proof: any): any {
     ]
 }
 
-async function buildChoice(choice: Number) {
+async function buildChoice(choice: Number, salt: Number) {
     let input = {
         choice: choice,
+        salt: salt
     }
     // TODO look into snarkjs generatecall
 
@@ -74,64 +77,76 @@ describe("MinimalGame", function () {
         const MinimalGame = await ethers.getContractFactory("MinimalGame");
         const minimalGame = await MinimalGame.deploy(choiceVerifier["address"], hasher["address"]);
 
+        function getSalt(saltLengthBytes: Number): Number {
+            let bytes = crypto.randomBytes(saltLengthBytes);
+            return bytes.readUInt32BE()
+        }
+
+
         // set players
         const signers = await ethers.getSigners()
         let operator = signers[0];
         let alice = signers[1];
         let aliceChoice = 0;
+        let aliceSalt = getSalt(32);
 
         let bob = signers[2];
         let bobChoice = 1;
+        let bobSalt = getSalt(32);
 
         let charlie = signers[3];
         let charlieChoice = 2;
+        let charlieSalt = getSalt(32);
 
         let delta = signers[4];
         let deltaChoice = 1;
+        let deltaSalt = getSalt(32);
 
         let echo = signers[5];
         let echoChoice = 0;
+        let echoSalt = getSalt(32);
 
         let foxtrot = signers[6];
         let foxtrotChoice = 2;
+        let foxtrotSalt = getSalt(32);
 
         // alice chooses rock
-        let zkChoice = await buildChoice(aliceChoice);
+        let zkChoice = await buildChoice(aliceChoice, aliceSalt);
         let tx = await (await minimalGame.connect(alice).joinGame(
             ...zkChoice['proofArgs'],
             zkChoice['publicSignals']
         )).wait()
 
         // bob chooses paper
-        zkChoice = await buildChoice(bobChoice);
+        zkChoice = await buildChoice(bobChoice, bobSalt);
         tx = await (await minimalGame.connect(bob).joinGame(
             ...zkChoice['proofArgs'],
             zkChoice['publicSignals']
         )).wait()
 
         // charlie chooses scissors
-        zkChoice = await buildChoice(charlieChoice);
+        zkChoice = await buildChoice(charlieChoice, charlieSalt);
         tx = await (await minimalGame.connect(charlie).joinGame(
             ...zkChoice['proofArgs'],
             zkChoice['publicSignals']
         )).wait()
 
         // delta chooses paper
-        zkChoice = await buildChoice(deltaChoice);
+        zkChoice = await buildChoice(deltaChoice, deltaSalt);
         tx = await (await minimalGame.connect(delta).joinGame(
             ...zkChoice['proofArgs'],
             zkChoice['publicSignals']
         )).wait()
 
         // echo chooses rock
-        zkChoice = await buildChoice(echoChoice);
+        zkChoice = await buildChoice(echoChoice, echoSalt);
         tx = await (await minimalGame.connect(echo).joinGame(
             ...zkChoice['proofArgs'],
             zkChoice['publicSignals']
         )).wait()
 
         // foxtrot chooses scissors
-        zkChoice = await buildChoice(foxtrotChoice);
+        zkChoice = await buildChoice(foxtrotChoice, foxtrotSalt);
         tx = await (await minimalGame.connect(foxtrot).joinGame(
             ...zkChoice['proofArgs'],
             zkChoice['publicSignals']
@@ -151,21 +166,21 @@ describe("MinimalGame", function () {
         expect(Number(gameId)).to.equal(3);
 
         // bob beats alice
-        await (await minimalGame.connect(alice).revealChoice(aliceChoice)).wait();
-        await (await minimalGame.connect(bob).revealChoice(bobChoice)).wait();
+        await (await minimalGame.connect(alice).revealChoice(aliceChoice, aliceSalt)).wait();
+        await (await minimalGame.connect(bob).revealChoice(bobChoice, bobSalt)).wait();
 
         let game1Winner = await minimalGame.getGameWinner(1);
         expect(game1Winner).to.equal(bob.address);
 
         // charlie beats delta
-        await (await minimalGame.connect(charlie).revealChoice(charlieChoice)).wait();
-        await (await minimalGame.connect(delta).revealChoice(deltaChoice)).wait();
+        await (await minimalGame.connect(charlie).revealChoice(charlieChoice, charlieSalt)).wait();
+        await (await minimalGame.connect(delta).revealChoice(deltaChoice, deltaSalt)).wait();
 
         let game2Winner = await minimalGame.getGameWinner(2);
         expect(game2Winner).to.equal(charlie.address);
 
         // foxtrot is still playing
-        await (await minimalGame.connect(echo).revealChoice(echoChoice)).wait();
+        await (await minimalGame.connect(echo).revealChoice(echoChoice, echoSalt)).wait();
 
         let game3Winner = await minimalGame.getGameWinner(3);
         expect(game3Winner).to.equal("0x0000000000000000000000000000000000000000");
@@ -173,13 +188,13 @@ describe("MinimalGame", function () {
         // have foxtrot try to lie
         let didCheat = false;
         try {
-            await (await minimalGame.connect(foxtrot).revealChoice(1)).wait();
+            await (await minimalGame.connect(foxtrot).revealChoice(1, foxtrotSalt)).wait();
         } catch {
             didCheat = true;
         }
         expect(didCheat).to.equal(true);
 
-        await (await minimalGame.connect(foxtrot).revealChoice(foxtrotChoice)).wait();
+        await (await minimalGame.connect(foxtrot).revealChoice(foxtrotChoice, foxtrotSalt)).wait();
 
         // echo should beat foxtrot
         game3Winner = await minimalGame.getGameWinner(3);

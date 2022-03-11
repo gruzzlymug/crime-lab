@@ -112,7 +112,7 @@ contract MinimalGame {
     player_to_game[msg.sender] = games.length - 1;
   }
 
-  function revealChoice(uint256 choice) public {
+  function revealChoice(uint256 choice, uint256 salt) public {
     require(player_to_game[msg.sender] != 0, 'Player must be in a game');
 
     // verify that the game hasn't already been won
@@ -126,7 +126,7 @@ contract MinimalGame {
     // compute mimc hash of provided choice
     uint256 R;
     uint256 C;
-    (R, C) = hasher.MiMCSponge(choice, uint256(0), uint256(0));
+    (R, C) = hasher.MiMCSponge(choice, uint256(0), salt);
 
     // check that this players revealed choice matches what they told
     if (_game.player1.id == msg.sender) {
