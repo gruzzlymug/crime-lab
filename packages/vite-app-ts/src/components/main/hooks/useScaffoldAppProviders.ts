@@ -65,9 +65,10 @@ export const useScaffoldProviders = (): IScaffoldAppProviders => {
      * @param connector
      * @returns
      */
+
     const autoConnectToBurner = (connector: TEthersModalConnector | undefined) => {
-      if (const_ConnectToBurnerOnFirstLoad && connector) {
-        (connector as EthersModalConnector).loadCore();
+      if (const_ConnectToBurnerOnFirstLoad && connector && connector?.loadWeb3Modal) {
+        connector.loadWeb3Modal();
         if (connector != null && !connector.hasCachedProvider()) {
           connector = new EthersModalConnector(
             { ...web3Config, theme: currentTheme },

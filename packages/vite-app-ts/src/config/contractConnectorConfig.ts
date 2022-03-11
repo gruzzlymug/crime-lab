@@ -24,24 +24,9 @@ export const contractConnectorConfig = () => {
   try {
     const result = {
       // 🙋🏽‍♂️ Add your hardhat contracts here
-      YourContract: createConnectorForHardhatContract(
-        'YourContract',
-        hardhatContracts.YourContract__factory,
-        hardhatContractsJson
-      ),
-      CrimeLab: createConnectorForHardhatContract(
-        'CrimeLab',
-        hardhatContracts.CrimeLab__factory,
-        hardhatContractsJson
-      ),
       MinimalGame: createConnectorForHardhatContract(
         'MinimalGame',
         hardhatContracts.MinimalGame__factory,
-        hardhatContractsJson
-      ),
-      MintedMap: createConnectorForHardhatContract(
-        'MintedMap',
-        hardhatContracts.MintedMap__factory,
         hardhatContractsJson
       ),
 

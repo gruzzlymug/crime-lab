@@ -27,81 +27,9 @@ export const MainPageMenu: FC<IMainPageMenuProps> = (props) => {
             props.setRoute('/');
           }}
           to="/">
-          Crimes
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="/crimelab">
-        <Link
-          onClick={() => {
-            props.setRoute('/crimelab');
-          }}
-          to="/crimelab">
-          CrimeLab
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="/mapeditor">
-        <Link
-          onClick={() => {
-            props.setRoute('/mapeditor');
-          }}
-          to="/mapeditor">
-          Map Editor
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="/minimalgame">
-        <Link
-          onClick={() => {
-            props.setRoute('/minimalgame');
-          }}
-          to="/minimalgame">
           MinimalGame
         </Link>
       </Menu.Item>
-      <Menu.Item key="/yourcontract">
-        <Link
-          onClick={() => {
-            props.setRoute('/yourcontract');
-          }}
-          to="/yourcontract">
-          YourContract
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="/hints">
-        <Link
-          onClick={() => {
-            props.setRoute('/hints');
-          }}
-          to="/hints">
-          Hints
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="/exampleui">
-        <Link
-          onClick={() => {
-            props.setRoute('/exampleui');
-          }}
-          to="/exampleui">
-          ExampleUI
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="/mainnetdai">
-        <Link
-          onClick={() => {
-            props.setRoute('/mainnetdai');
-          }}
-          to="/mainnetdai">
-          Mainnet DAI
-        </Link>
-      </Menu.Item>
-      {/* <Menu.Item key="/subgraph">
-      <Link
-        onClick={() => {
-          props.setRoute('/subgraph');
-        }}
-        to="/subgraph">
-        Subgraph
-      </Link>
-    </Menu.Item> */}
     </Menu>
   )
 }

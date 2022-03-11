@@ -58,3 +58,5 @@ yarn-error.log*
 # zk
 circom/
 zk/makeChoice_js
+zk/makeChoice.r1cs
+zk/ptau

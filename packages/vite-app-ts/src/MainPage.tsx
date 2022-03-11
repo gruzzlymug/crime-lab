@@ -6,7 +6,7 @@ import { useContractReader, useBalance, useEthersAdaptorFromProviderOrSigners } 
 import { useDexEthPrice } from 'eth-hooks/dapps';
 
 import { GenericContract } from 'eth-components/ant/generic-contract';
-import { CrimeLab, Lobby, Crime, MapEditor, Hints, Subgraph, ExampleUI, MinimalGame } from '~~/components/pages';
+import { MinimalGame } from '~~/components/pages';
 
 import { useEventListener } from 'eth-hooks';
 import { MainPageMenu, MainPageContracts, MainPageFooter, MainPageHeader } from './components/main';
@@ -94,62 +94,11 @@ export const Main: FC = () => {
       <BrowserRouter>
         <MainPageMenu route={route} setRoute={setRoute} />
         <Switch>
-          <Route exact path="/yourcontract">
+          {/* <Route exact path="/yourcontract">
             <MainPageContracts scaffoldAppProviders={scaffoldAppProviders} />
-          </Route>
-          {/* you can add routes here like the below examples */}
-          <Route exact path="/crimelab">
-            <CrimeLab />
-          </Route>
-          <Route exact path="/mapeditor">
-            <MapEditor />
-          </Route>
-
-          <Route path="/minimalgame">
-            <MinimalGame />
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={ethersContext?.account ?? ''}
-              yourCurrentBalance={yourCurrentBalance}
-              mainnetProvider={scaffoldAppProviders.mainnetAdaptor?.provider}
-              price={ethPrice}
-            />
-          </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              mainnetProvider={scaffoldAppProviders.mainnetAdaptor?.provider}
-              yourCurrentBalance={yourCurrentBalance}
-              price={ethPrice}
-            />
-          </Route>
-          <Route path="/mainnetdai">
-            {mainnetProvider != null && (
-              <GenericContract
-                contractName="DAI"
-                contract={mainnetDai}
-                mainnetAdaptor={scaffoldAppProviders.mainnetAdaptor}
-                blockExplorer={NETWORKS.mainnet.blockExplorer}
-              />
-            )}
-          </Route>
-          {/* Subgraph also disabled in MainPageMenu */}
-          {/*
-          <Route path="/subgraph">
-            <Subgraph subgraphUri={subgraphUri} mainnetProvider={scaffoldAppProviders.mainnetAdaptor?.provider} />
-          </Route>
-          */}
-
-          {/* wildcard route needs to be after named routes, and before the index */}
-          <Route
-            exact
-            path="/:gameId"
-            children={
-              <Crime />
-            }
-          />
+          </Route> */}
           <Route path="/">
-            <Lobby />
+            <MinimalGame />
           </Route>
         </Switch>
       </BrowserRouter>
