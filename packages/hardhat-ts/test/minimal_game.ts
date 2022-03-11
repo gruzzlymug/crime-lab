@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { IntegerType } from 'typechain';
 const snarkjs = require('snarkjs')
-const { mimcSpongecontract } = require("circomlibjs")
+const { mimcSpongecontract, buildMimcSponge } = require("circomlibjs")
 const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
@@ -44,12 +44,15 @@ async function buildChoice(choice: Number, salt: Number) {
     const choiceVerificationKey = require('/Users/kaneoldcastle/Desktop/oldcastlelabs/workspace/minimal-stab-ts/zk/zkey/choice_verification_key.json')
 
     // verify proof locally
-    console.log(await snarkjs.groth16.verify(
+    let validProof = await snarkjs.groth16.verify(
         choiceVerificationKey,
         publicSignals,
         proof
-    ))
-    console.log(publicSignals)
+    )
+
+    if (validProof == false) {
+        console.warn("Proof invalid!", choice, salt)
+    }
 
     return { proofArgs, publicSignals };
 }
