@@ -1,5 +1,6 @@
-# 🔪 Minimal Stab TS
+# Rock Paper Scissors
 Templated from Scaffold-Eth Typescript
+
 ## Typescript
 
 This was the typescript repo of scaffold.eth. Check out the directories:
