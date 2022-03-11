@@ -26,7 +26,7 @@ function buildProofArgs(proof: any): any {
     ]
 }
 
-async function buildChoice(choice: Number, salt: Number) {
+async function buildChoice(choice: Number, salt: string) {
     let input = {
         choice: choice,
         salt: salt
@@ -84,9 +84,23 @@ describe("MinimalGame", function () {
         const MinimalGame = await ethers.getContractFactory("MinimalGame");
         const minimalGame = await MinimalGame.deploy(choiceVerifier["address"], hasher["address"]);
 
-        function getSalt(saltLengthBytes: Number): Number {
-            let bytes = crypto.randomBytes(saltLengthBytes);
-            return bytes.readUInt32BE()
+        // adapted from https://stackoverflow.com/a/63163746
+        function getSalt(saltLengthBytes: Number): string {
+            const bytes = new Uint32Array(8); // 256 bits
+            const randomBytes = crypto.webcrypto.getRandomValues(bytes);
+
+            // convert byte array to hexademical representation
+            let hex: any = [];
+
+            randomBytes.forEach(function (i: any) {
+                var h = i.toString(16);
+                if (h.length % 2) { h = '0' + h; }
+                hex.push(h);
+            });
+
+            const result = BigInt('0x' + hex.join(''));
+            // console.log(result.toString(2).length): verifies that we created a 256 bit number
+            return result.toString();
         }
 
 
