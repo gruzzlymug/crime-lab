@@ -219,7 +219,7 @@ describe("MinimalGame", function () {
         didCheat = false;
         try {
             await (await minimalGame.connect(foxtrot).revealChoice(foxtrotChoice, foxtrotSalt.slice(0, foxtrotSalt.length - 3) + "123")).wait();
-        } catch (e) {
+        } catch {
             didCheat = true;
         }
         expect(didCheat).to.equal(true);
@@ -229,5 +229,14 @@ describe("MinimalGame", function () {
         // echo should beat foxtrot
         game3Winner = await minimalGame.getGameWinner(3);
         expect(game3Winner).to.equal(echo.address);
+
+        // foxtrot should not be able to try revealing again after game has already been won
+        let rejectedReveal = false;
+        try {
+            await (await minimalGame.connect(foxtrot).revealChoice(foxtrotChoice, foxtrotSalt)).wait();
+        } catch (e) {
+            rejectedReveal = true;
+        }
+        expect(rejectedReveal).to.equal(true);
     });
 });
