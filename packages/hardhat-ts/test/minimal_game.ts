@@ -206,11 +206,20 @@ describe("MinimalGame", function () {
         let game3Winner = await minimalGame.getGameWinner(3);
         expect(game3Winner).to.equal("0x0000000000000000000000000000000000000000");
 
-        // have foxtrot try to lie
+        // have foxtrot try to lie about choice
         let didCheat = false;
         try {
             await (await minimalGame.connect(foxtrot).revealChoice(1, foxtrotSalt)).wait();
         } catch {
+            didCheat = true;
+        }
+        expect(didCheat).to.equal(true);
+
+        // have foxtrot try to lie about salt
+        didCheat = false;
+        try {
+            await (await minimalGame.connect(foxtrot).revealChoice(foxtrotChoice, foxtrotSalt.slice(0, foxtrotSalt.length - 3) + "123")).wait();
+        } catch (e) {
             didCheat = true;
         }
         expect(didCheat).to.equal(true);
