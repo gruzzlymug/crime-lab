@@ -25,6 +25,3 @@ cp zk/contracts/ChoiceVerifier.sol packages/hardhat-ts/contracts/ChoiceVerifier.
 
 # remove artifacts
 rm zk/contracts/*.bak
-
-# Generate the proof
-# snarkjs groth16 prove zk/zkey/makeChoice_0000.zkey zk/witness.wtns zk/proof.json zk/public.json

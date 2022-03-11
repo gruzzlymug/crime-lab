@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["node", "ethers"],
-    "allowJs": false,
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
+    "types": [
+      "node",
+      "ethers"
+    ],
+    "allowJs": true,
+    "checkJs": false,
     "skipLibCheck": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "typeRoots": ["node_modules/@types", "src/helpers/definitions"] /* List of folders to include type definitions from. */,
+    "typeRoots": [
+      "node_modules/@types",
+      "src/helpers/definitions"
+    ] /* List of folders to include type definitions from. */,
     "forceConsistentCasingInFileNames": true,
     "module": "commonjs",
     "moduleResolution": "Node",
@@ -20,15 +31,42 @@
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
-      "~~/*": ["./src/*"],
-      "scripts/*": ["./scripts/*"],
-      "helpers/*": ["./helpers/*"],
-      "contracts/*": ["./contracts/*"],
-      "tests/*": ["./tests/*"],
-      "typechain/*": ["./typechain/*"]
+      "~~/*": [
+        "./src/*"
+      ],
+      "scripts/*": [
+        "./scripts/*"
+      ],
+      "helpers/*": [
+        "./helpers/*"
+      ],
+      "contracts/*": [
+        "./contracts/*"
+      ],
+      "tests/*": [
+        "./tests/*"
+      ],
+      "typechain/*": [
+        "./typechain/*"
+      ]
     }
   },
-  "include": ["types", "scripts", "test", "helpers", "./hardhat.config.ts", "./deploy"],
-  "exclude": ["**/node_modules", ".husky", "./src/styles/css", "./tailwind.config.js"],
-  "files": ["./hardhat.config.ts", "helpers/types/__global.ts"]
+  "include": [
+    "types",
+    "scripts",
+    "test",
+    "helpers",
+    "./hardhat.config.ts",
+    "./deploy"
+  ],
+  "exclude": [
+    "**/node_modules",
+    ".husky",
+    "./src/styles/css",
+    "./tailwind.config.js"
+  ],
+  "files": [
+    "./hardhat.config.ts",
+    "helpers/types/__global.ts"
+  ]
 }

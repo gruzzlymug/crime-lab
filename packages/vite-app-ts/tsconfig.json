@@ -1,10 +1,16 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext", "ES2017"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext",
+      "ES2017"
+    ],
     "sourceMap": true,
     // "inlineSources": true,
-    "allowJs": false,
+    "allowJs": true,
+    "checkJs": false,
     "declarationMap": true,
     "declaration": true,
     "esModuleInterop": true,
@@ -21,7 +27,10 @@
       // "@ethersproject/abstract-signer",
       // "@ethersproject/wallet"
     ],
-    "typeRoots": ["node_modules/@types", "helpers/types"] /* List of folders to include type definitions from. */,
+    "typeRoots": [
+      "node_modules/@types",
+      "helpers/types"
+    ] /* List of folders to include type definitions from. */,
     "forceConsistentCasingInFileNames": true,
     "module": "es2020",
     "moduleResolution": "Node",
@@ -35,10 +44,15 @@
     "jsx": "react-jsxdev",
     "jsxImportSource": "@emotion/react",
     "paths": {
-      "~~/*": ["./src/*"]
+      "~~/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src", "src/helpers/__global.ts"],
+  "include": [
+    "src",
+    "src/helpers/__global.ts"
+  ],
   "exclude": [
     "**/node_modules",
     ".husky",

@@ -3,12 +3,20 @@ pragma solidity >=0.4.22 <0.9.0;
 
 import 'hardhat/console.sol';
 
+interface IHasher {
+  function MiMCSponge(
+    uint256 in_xL,
+    uint256 in_xR,
+    uint256 in_k
+  ) external pure returns (uint256 xL, uint256 xR);
+}
+
 interface IChoiceVerifier {
   function verifyProof(
     uint256[2] memory a,
     uint256[2][2] memory b,
     uint256[2] memory c,
-    uint256[1] memory input
+    uint256[2] memory input
   ) external view returns (bool r);
 }
 
@@ -18,7 +26,7 @@ contract MinimalGame {
     uint256[2] a;
     uint256[2][2] b;
     uint256[2] c;
-    uint256[1] input;
+    uint256[2] input;
   }
 
   struct Player {
@@ -38,13 +46,15 @@ contract MinimalGame {
 
   Game[] public games;
   IChoiceVerifier cv; // verifier for proving choice rule compliance
+  IHasher hasher; // mimc hasher
 
-  constructor(address _cv) {
+  constructor(address _cv, address _hasher) {
     cv = IChoiceVerifier(_cv);
+    hasher = IHasher(_hasher);
 
     // generate fake proof for fake player
-    uint256[1] memory _in;
-    for (uint256 i = 0; i < 1; i++) _in[i] = i;
+    uint256[2] memory _in;
+    for (uint256 i = 0; i < 2; i++) _in[i] = i;
 
     uint256[2] memory a;
     for (uint256 i = 0; i < 2; i++) a[i] = i;
@@ -64,7 +74,7 @@ contract MinimalGame {
     uint256[2] memory b_0,
     uint256[2] memory b_1,
     uint256[2] memory c,
-    uint256[1] memory input
+    uint256[2] memory input
   ) public {
     require(player_to_game[msg.sender] == 0, 'Player is already in a game');
     // only accept valid choices (input[0] is 1: number is valid, or 0: invalid number )
@@ -88,8 +98,8 @@ contract MinimalGame {
     // create new game if no available game found
     // add player to new game's Player1 slot. Player2 slot is null address
     // generate fake proof for fake player
-    uint256[1] memory _in;
-    for (uint256 i = 0; i < 1; i++) _in[i] = i;
+    uint256[2] memory _in;
+    for (uint256 i = 0; i < 2; i++) _in[i] = i;
 
     uint256[2] memory _a;
     for (uint256 i = 0; i < 2; i++) _a[i] = i;
@@ -102,23 +112,36 @@ contract MinimalGame {
     player_to_game[msg.sender] = games.length - 1;
   }
 
-  function revealChoice(int256 choice) public {
+  function revealChoice(uint256 choice) public {
     require(player_to_game[msg.sender] != 0, 'Player must be in a game');
 
     // verify that the game hasn't already been won
     Game storage _game = games[player_to_game[msg.sender]];
     require(_game.winner == address(0), 'Game has already been won!');
 
-    // verify that the components given can compute the original proof
-    // TODO generate proof from choice and compare
+    // verify that the components given can compute mimc hash
     require(choice < 3, 'Choice was invalid');
     require(choice >= 0, 'Choice was invalid');
 
+    // compute mimc hash of provided choice
+    uint256 R;
+    uint256 C;
+    (R, C) = hasher.MiMCSponge(choice, uint256(0), uint256(0));
+
+    // check that this players revealed choice matches what they told
+    if (_game.player1.id == msg.sender) {
+      require(_game.player1.proof.input[1] == R, 'Revealed choice invalid');
+    } else if (_game.player2.id == msg.sender) {
+      require(_game.player2.proof.input[1] == R, 'Revealed choice invalid');
+    } else {
+      require(1 == 0, 'Player not in game');
+    }
+
     // update player choice
     if (_game.player1.id == msg.sender) {
-      _game.player1.choice = choice;
+      _game.player1.choice = int256(choice);
     } else if (_game.player2.id == msg.sender) {
-      _game.player2.choice = choice;
+      _game.player2.choice = int256(choice);
     } else {
       require(1 == 0, 'Player not in game');
     }
